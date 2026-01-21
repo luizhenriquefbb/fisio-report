@@ -32,20 +32,25 @@ const Dashboard = () => {
     { id: 3, name: 'Marcos Santos', position: 'Zagueiro', complaint: 'Fadiga', period: 'Integral', treatment: 'Alongamento', status: 'LIBERADO', statusColor: '#10B981', observation: 'Adicionar observação...' },
   ];
 
+  const totalAtletas = records.length;
+  const liberados = records.filter(r => r.status === 'LIBERADO').length;
+  const emTransicao = records.filter(r => r.status === 'TRANSIÇÃO').length;
+  const noDm = records.filter(r => r.status === 'NO DM').length;
+
   return (
     <div className="p-4 bg-light" style={{ minHeight: 'calc(100vh - 80px)' }}>
       <div className="d-flex gap-4 mb-5">
-        <SummaryCard title="Total de Atletas" count="8" icon={Users} color="#6366F1" bgColor="white" />
-        <SummaryCard title="Liberados" count="1" icon={CheckCircle} color="#10B981" bgColor="#ECFDF5" />
-        <SummaryCard title="Em Transição" count="1" icon={Activity} color="#F59E0B" bgColor="#FFFBEB" />
-        <SummaryCard title="No DM" count="1" icon={AlertCircle} color="#EF4444" bgColor="#FEF2F2" />
+        <SummaryCard title="Total de Atletas" count={totalAtletas} icon={Users} color="#6366F1" bgColor="white" />
+        <SummaryCard title="Liberados" count={liberados} icon={CheckCircle} color="#10B981" bgColor="#ECFDF5" />
+        <SummaryCard title="Em Transição" count={emTransicao} icon={Activity} color="#F59E0B" bgColor="#FFFBEB" />
+        <SummaryCard title="No DM" count={noDm} icon={AlertCircle} color="#EF4444" bgColor="#FEF2F2" />
       </div>
 
       <div className="card border-0 shadow-sm" style={{ borderRadius: '16px' }}>
         <div className="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
           <div>
             <h5 className="mb-0 fw-bold">Relatório do Dia</h5>
-            <small className="text-muted">3 registros hoje</small>
+            <small className="text-muted">{totalAtletas} registros hoje</small>
           </div>
           <div className="d-flex gap-2">
             <button 
