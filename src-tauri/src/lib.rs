@@ -1,12 +1,19 @@
 mod db;
 mod models;
 
-use db::{init_db, DbState};
+use db::{init_db, DbState, get_all_records};
+use models::DashboardRecord;
 use tauri::{AppHandle, Manager, State};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+async fn get_dashboard_data(state: State<'_, DbState>) -> Result<Vec<DashboardRecord>, String> {
+    let conn = state.0.lock().unwrap();
+    get_all_records(&conn)
 }
 
 #[tauri::command]
@@ -70,7 +77,8 @@ pub fn run() {
             greet, 
             delete_player, 
             delete_treatment,
-            generate_report_pdf
+            generate_report_pdf,
+            get_dashboard_data
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,6 +1,7 @@
 import { Users, CheckCircle, Activity, AlertCircle, FileDown, Plus, MoreVertical, ChevronDown } from 'lucide-react';
 import { invoke } from "@tauri-apps/api/core";
 import { message } from "@tauri-apps/plugin-dialog";
+import { useEffect, useState } from 'react';
 
 const SummaryCard = ({ title, count, icon: Icon, color, bgColor }: any) => (
   <div className="card border-0 shadow-sm flex-fill" style={{ backgroundColor: bgColor, borderRadius: '12px' }}>
@@ -16,7 +17,35 @@ const SummaryCard = ({ title, count, icon: Icon, color, bgColor }: any) => (
   </div>
 );
 
+interface DashboardRecord {
+  id: number;
+  name: string;
+  position: string;
+  complaint: string;
+  period: string;
+  treatment: string;
+  status: string;
+  statusColor: string;
+  observation: string;
+}
+
 const Dashboard = () => {
+  const [records, setRecords] = useState<DashboardRecord[]>([]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const data = await invoke<DashboardRecord[]>("get_dashboard_data");
+      setRecords(data);
+    } catch (err) {
+      console.error(err);
+      await message("Erro ao carregar dados: " + err, { title: 'Erro', kind: 'error' });
+    }
+  };
+
   const handleExportPDF = async () => {
     try {
       const res = await invoke("generate_report_pdf");
@@ -25,12 +54,6 @@ const Dashboard = () => {
       await message(err as string, { title: 'Erro', kind: 'error' });
     }
   };
-
-  const records = [
-    { id: 10, name: 'Rafael Lima', position: 'Meia', complaint: 'Dor Muscular', period: 'Manhã', treatment: 'Liberação Miofascial', status: 'TRANSIÇÃO', statusColor: '#F59E0B', observation: 'Apresentou melhora signific...' },
-    { id: 9, name: 'Gabriel Souza', position: 'Atacante', complaint: 'Entorse', period: 'Tarde', treatment: 'Crioterapia', status: 'NO DM', statusColor: '#EF4444', observation: 'Entorse grau II, repouso rec...' },
-    { id: 3, name: 'Marcos Santos', position: 'Zagueiro', complaint: 'Fadiga', period: 'Integral', treatment: 'Alongamento', status: 'LIBERADO', statusColor: '#10B981', observation: 'Adicionar observação...' },
-  ];
 
   const totalAtletas = records.length;
   const liberados = records.filter(r => r.status === 'LIBERADO').length;

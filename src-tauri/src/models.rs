@@ -26,3 +26,17 @@ pub struct LookupItem {
     pub name: String,
     pub color: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardRecord {
+    pub id: i32,
+    pub name: String,
+    pub position: String,
+    pub complaint: String,
+    pub period: String,
+    pub treatment: String,
+    pub status: String,
+    pub status_color: String,
+    pub observation: String,
+}
