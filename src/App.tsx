@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Sidebar from './components/Sidebar';
-import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import Athletes from './pages/Athletes';
 import Complaints from './pages/Complaints';
@@ -26,7 +25,6 @@ function App() {
     <div className="d-flex" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
       <div className="flex-grow-1 d-flex flex-column" style={{ overflowY: 'auto' }}>
-        <Header />
         <main>
           {renderPage()}
         </main>
