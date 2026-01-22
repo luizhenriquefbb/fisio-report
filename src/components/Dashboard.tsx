@@ -19,6 +19,7 @@ import { Dropdown } from "react-bootstrap";
 
 import NewRecordModal from "./NewRecordModal";
 import ObservationModal from "./ObservationModal";
+import CustomDatePicker from "./CustomDatePicker";
 
 const SummaryCard = ({ title, count, icon: Icon, color, bgColor }: any) => (
   <div
@@ -249,18 +250,11 @@ const Dashboard = () => {
             />
           </div>
 
-          <div className="d-flex align-items-center text-muted position-relative">
-            <Calendar className="me-2" size={18} />
-            <small className="fw-semibold">
-              {formatLongDate(selectedDate)}
-            </small>
-            <input 
-              type="date" 
-              className="position-absolute w-100 h-100 opacity-0" 
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              style={{ cursor: 'pointer', left: 0, top: 0 }}
-              title="Selecionar Data"
+          <div className="d-flex align-items-center text-muted">
+            <CustomDatePicker 
+              value={selectedDate} 
+              onChange={setSelectedDate} 
+              variant="teal"
             />
           </div>
 

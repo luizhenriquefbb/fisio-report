@@ -143,7 +143,59 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
     Ok(conn)
 }
 
-use crate::models::{DashboardRecord, LookupData, Player, LookupItem, CreateRecordRequest, UpdateRecordRequest};
+use crate::models::{DashboardRecord, LookupData, Player, LookupItem, CreateRecordRequest, UpdateRecordRequest, ReportSummary, ReportStats};
+
+pub fn get_report_summaries(conn: &Connection, date_filter: Option<String>) -> Result<Vec<ReportSummary>, String> {
+    let mut query = "SELECT date, COUNT(*) as count FROM records ".to_string();
+    
+    if let Some(date) = date_filter {
+        if !date.is_empty() {
+            query.push_str(&format!("WHERE date = '{}' ", date));
+        }
+    }
+    
+    query.push_str("GROUP BY date ORDER BY date DESC");
+
+    let mut stmt = conn.prepare(&query).map_err(|e| e.to_string())?;
+    let rows = stmt.query_map([], |row| {
+        Ok(ReportSummary {
+            date: row.get(0)?,
+            count: row.get(1)?,
+        })
+    }).map_err(|e| e.to_string())?;
+
+    let mut summaries = Vec::new();
+    for row in rows {
+        summaries.push(row.map_err(|e| e.to_string())?);
+    }
+    Ok(summaries)
+}
+
+pub fn get_report_stats(conn: &Connection) -> Result<ReportStats, String> {
+    // Total records
+    let total_records: i32 = conn.query_row("SELECT COUNT(*) FROM records", [], |row| row.get(0)).unwrap_or(0);
+    
+    // Reports this month (distinct days with records in current month)
+    let reports_this_month: i32 = conn.query_row(
+        "SELECT COUNT(DISTINCT date) FROM records WHERE strftime('%m', date) = strftime('%m', 'now') AND strftime('%Y', date) = strftime('%Y', 'now')",
+        [],
+        |row| row.get(0)
+    ).unwrap_or(0);
+
+    // Average per day
+    let distinct_days: i32 = conn.query_row("SELECT COUNT(DISTINCT date) FROM records", [], |row| row.get(0)).unwrap_or(1);
+    let average = if distinct_days > 0 {
+        total_records as f64 / distinct_days as f64
+    } else {
+        0.0
+    };
+
+    Ok(ReportStats {
+        reports_this_month,
+        total_records,
+        average_per_day: (average * 10.0).round() / 10.0, // 1 decimal place
+    })
+}
 
 // Function to fetch all dashboard records for a specific date.
 // Performs multiple JOINs to fetch names (e.g. player name) instead of just IDs.

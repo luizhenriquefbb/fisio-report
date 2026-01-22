@@ -1,5 +1,20 @@
-use tauri::AppHandle;
-use tauri::Manager;
+use tauri::{AppHandle, Manager, State};
+use crate::db::{DbState, get_report_summaries, get_report_stats};
+use crate::models::{ReportSummary, ReportStats};
+
+// Command to get summaries of reports grouped by date.
+#[tauri::command]
+pub async fn get_reports(state: State<'_, DbState>, date_filter: Option<String>) -> Result<Vec<ReportSummary>, String> {
+    let conn = state.0.lock().unwrap();
+    get_report_summaries(&conn, date_filter)
+}
+
+// Command to get report statistics.
+#[tauri::command]
+pub async fn get_report_statistics(state: State<'_, DbState>) -> Result<ReportStats, String> {
+    let conn = state.0.lock().unwrap();
+    get_report_stats(&conn)
+}
 
 // Placeholder for PDF generation.
 #[tauri::command]

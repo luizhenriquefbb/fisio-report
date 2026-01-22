@@ -5,6 +5,7 @@ import Athletes from './pages/Athletes';
 import Complaints from './pages/Complaints';
 import Treatments from './pages/Treatments';
 import Shifts from './pages/Shifts';
+import Reports from './pages/Reports';
 import './App.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       case 'queixas': return <Complaints />;
       case 'tratamentos': return <Treatments />;
       case 'periodos': return <Shifts />;
+      case 'relatorios': return <Reports />;
       default: return <Dashboard />;
     }
   };

@@ -57,6 +57,8 @@ pub fn run() {
 
             // Record & Report Commands
             commands::report::generate_report_pdf, 
+            commands::report::get_reports,
+            commands::report::get_report_statistics,
             commands::record::get_dashboard_data, 
             commands::record::get_lookup_options, 
             commands::record::create_new_record, 

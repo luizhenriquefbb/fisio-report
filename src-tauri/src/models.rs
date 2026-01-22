@@ -121,3 +121,18 @@ pub struct UpdateGenericRequest {
     pub id: i32,
     pub name: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReportSummary {
+    pub date: String,
+    pub count: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReportStats {
+    pub reports_this_month: i32,
+    pub total_records: i32,
+    pub average_per_day: f64,
+}
