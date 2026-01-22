@@ -196,10 +196,10 @@ const Dashboard = () => {
                       </div>
                       <div>
                         <select 
-                          className="form-select border-0 bg-transparent fw-bold p-0" 
+                          className="form-select border-0 bg-transparent fw-bold p-0 select-inline" 
                           value={record.playerId}
                           onChange={(e) => handleUpdate(record, 'playerId', e.target.value)}
-                          style={{ width: 'auto', cursor: 'pointer' }}
+                          aria-label="Selecionar Atleta"
                         >
                            {lookupData?.players.map(p => (
                              <option key={p.id} value={p.id}>{p.name}</option>
@@ -211,10 +211,10 @@ const Dashboard = () => {
                   </td>
                   <td className="py-3 border-0">
                     <select 
-                      className="form-select border-0 bg-transparent p-0" 
+                      className="form-select border-0 bg-transparent p-0 select-inline" 
                       value={record.complaintId}
                       onChange={(e) => handleUpdate(record, 'complaintId', e.target.value)}
-                      style={{ width: 'auto', cursor: 'pointer' }}
+                      aria-label="Selecionar Queixa"
                     >
                        {lookupData?.complaints.map(c => (
                          <option key={c.id} value={c.id}>{c.name}</option>
@@ -223,10 +223,10 @@ const Dashboard = () => {
                   </td>
                   <td className="py-3 border-0">
                      <select 
-                      className="form-select border-0 bg-transparent p-0" 
+                      className="form-select border-0 bg-transparent p-0 select-inline" 
                       value={record.shiftId}
                       onChange={(e) => handleUpdate(record, 'shiftId', e.target.value)}
-                      style={{ width: 'auto', cursor: 'pointer' }}
+                      aria-label="Selecionar Período"
                     >
                        {lookupData?.shifts.map(s => (
                          <option key={s.id} value={s.id}>{s.name}</option>
@@ -235,10 +235,10 @@ const Dashboard = () => {
                   </td>
                   <td className="py-3 border-0">
                      <select 
-                      className="form-select border-0 bg-transparent p-0" 
+                      className="form-select border-0 bg-transparent p-0 select-inline" 
                       value={record.treatmentId}
                       onChange={(e) => handleUpdate(record, 'treatmentId', e.target.value)}
-                      style={{ width: 'auto', cursor: 'pointer' }}
+                      aria-label="Selecionar Tratamento"
                     >
                        {lookupData?.treatments.map(t => (
                          <option key={t.id} value={t.id}>{t.name}</option>
@@ -248,10 +248,11 @@ const Dashboard = () => {
                   <td className="py-3 border-0">
                     <div className="position-relative">
                         <select 
-                        className="form-select border-0 bg-transparent p-0 ps-3 fw-bold" 
+                        className="form-select border-0 bg-transparent p-0 ps-3 fw-bold select-inline" 
                         value={record.statusId}
                         onChange={(e) => handleUpdate(record, 'statusId', e.target.value)}
-                        style={{ width: 'auto', cursor: 'pointer', color: record.statusColor }}
+                        style={{ color: record.statusColor }}
+                        aria-label="Selecionar Status"
                         >
                         {lookupData?.status.map(s => (
                             <option key={s.id} value={s.id}>{s.name}</option>
