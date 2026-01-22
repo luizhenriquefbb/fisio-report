@@ -8,6 +8,7 @@ import {
   CheckCircle,
   FileDown,
   MoreVertical,
+  Pencil,
   Plus,
   Search,
   Trash2,
@@ -17,6 +18,7 @@ import { useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 
 import NewRecordModal from "./NewRecordModal";
+import ObservationModal from "./ObservationModal";
 
 const SummaryCard = ({ title, count, icon: Icon, color, bgColor }: any) => (
   <div
@@ -77,6 +79,8 @@ const Dashboard = () => {
   const [records, setRecords] = useState<DashboardRecord[]>([]);
   const [lookupData, setLookupData] = useState<LookupData | null>(null);
   const [showNewRecordModal, setShowNewRecordModal] = useState(false);
+  const [showObservationModal, setShowObservationModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<DashboardRecord | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -141,14 +145,18 @@ const Dashboard = () => {
   const handleUpdate = async (
     record: DashboardRecord,
     field: string,
-    value: string,
+    value: string | number,
   ) => {
-    const updatedRecord = { ...record, [field]: parseInt(value) };
+    // If updating ID fields (from selects), ensure value is parsed to int. 
+    // If updating text fields (observation), keep as string.
+    const parsedValue = typeof value === 'string' && field !== 'observation' ? parseInt(value) : value;
+
+    const updatedRecord = { ...record, [field]: parsedValue };
 
     // Optimistic update
     setRecords(
       records.map((r) =>
-        r.id === record.id ? { ...r, [field]: parseInt(value) } : r,
+        r.id === record.id ? { ...r, [field]: parsedValue } : r,
       ),
     );
 
@@ -172,6 +180,19 @@ const Dashboard = () => {
         kind: "error",
       });
       loadData(); // Revert
+    }
+  };
+
+  const handleEditObservation = (record: DashboardRecord) => {
+    setEditingRecord(record);
+    setShowObservationModal(true);
+  };
+
+  const saveObservation = async (newObservation: string) => {
+    if (editingRecord) {
+      await handleUpdate(editingRecord, 'observation', newObservation);
+      setShowObservationModal(false);
+      setEditingRecord(null);
     }
   };
 
@@ -474,6 +495,13 @@ const Dashboard = () => {
 
                         <Dropdown.Menu>
                           <Dropdown.Item
+                            onClick={() => handleEditObservation(record)}
+                            className="d-flex align-items-center"
+                          >
+                            <Pencil size={14} className="me-2" />
+                            Editar observação
+                          </Dropdown.Item>
+                          <Dropdown.Item
                             className="text-danger d-flex align-items-center"
                             onClick={() => handleDelete(record.id)}
                           >
@@ -494,6 +522,13 @@ const Dashboard = () => {
           show={showNewRecordModal}
           onHide={() => setShowNewRecordModal(false)}
           onSave={loadData}
+        />
+
+        <ObservationModal
+          show={showObservationModal}
+          onHide={() => setShowObservationModal(false)}
+          onSave={saveObservation}
+          initialObservation={editingRecord?.observation || ""}
         />
       </div>
     </>
