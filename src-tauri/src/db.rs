@@ -145,9 +145,9 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
 
 use crate::models::{DashboardRecord, LookupData, Player, LookupItem, CreateRecordRequest, UpdateRecordRequest};
 
-// Function to fetch all dashboard records.
+// Function to fetch all dashboard records for a specific date.
 // Performs multiple JOINs to fetch names (e.g. player name) instead of just IDs.
-pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String> {
+pub fn get_all_records(conn: &Connection, date: String) -> Result<Vec<DashboardRecord>, String> {
     let mut stmt = conn.prepare(
         "SELECT 
             r.id, 
@@ -171,11 +171,12 @@ pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String
         JOIN shifts s ON r.shift_id = s.id
         JOIN treatments t ON r.treatment_id = t.id
         JOIN status st ON r.status_id = st.id
+        WHERE r.date = ?1
         ORDER BY r.id DESC"
     ).map_err(|e| e.to_string())?;
 
     // Maps each SQL result row to the DashboardRecord struct
-    let rows = stmt.query_map([], |row| {
+    let rows = stmt.query_map([date], |row| {
         Ok(DashboardRecord {
             id: row.get(0)?,
             player_id: row.get(1)?,

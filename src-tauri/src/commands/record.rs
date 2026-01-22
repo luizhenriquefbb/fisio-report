@@ -6,13 +6,13 @@ use crate::models::{DashboardRecord, LookupData, CreateRecordRequest, UpdateReco
 // Uses the DbState managed by Tauri to access the database.
 // "async" allows the operation not to block the UI.
 #[tauri::command]
-pub async fn get_dashboard_data(state: State<'_, DbState>) -> Result<Vec<DashboardRecord>, String> {
+pub async fn get_dashboard_data(state: State<'_, DbState>, date: String) -> Result<Vec<DashboardRecord>, String> {
     // Locks the Mutex to access the connection safely.
     // .unwrap() assumes the lock will work (if it fails, it's a fatal error/panic).
     let conn = state.0.lock().unwrap();
     
     // Calls the function from the database layer (db.rs)
-    get_all_records(&conn)
+    get_all_records(&conn, date)
 }
 
 // Command to get dropdown (select) options.

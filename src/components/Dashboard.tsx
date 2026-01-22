@@ -78,15 +78,16 @@ const Dashboard = () => {
   const [lookupData, setLookupData] = useState<LookupData | null>(null);
   const [showNewRecordModal, setShowNewRecordModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
     loadData();
     loadLookupData();
-  }, []);
+  }, [selectedDate]); // Reload when date changes
 
   const loadData = async () => {
     try {
-      const data = await invoke<DashboardRecord[]>("get_dashboard_data");
+      const data = await invoke<DashboardRecord[]>("get_dashboard_data", { date: selectedDate });
       setRecords(data);
     } catch (err) {
       console.error(err);
@@ -183,6 +184,24 @@ const Dashboard = () => {
     r.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+  const formatLongDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    const formatted = new Intl.DateTimeFormat("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+
+    return formatted
+      .split(" ")
+      .map((word) =>
+        word.length > 2 ? word.charAt(0).toUpperCase() + word.slice(1) : word,
+      )
+      .join(" ");
+  };
+
   const renderHeader = () => {
     return (
       <header className="d-flex justify-content-between align-items-center py-3 px-4 bg-white border-bottom">
@@ -209,11 +228,19 @@ const Dashboard = () => {
             />
           </div>
 
-          <div className="d-flex align-items-center text-muted">
+          <div className="d-flex align-items-center text-muted position-relative">
             <Calendar className="me-2" size={18} />
             <small className="fw-semibold">
-              Terça-Feira, 20 De Janeiro De 2026
+              {formatLongDate(selectedDate)}
             </small>
+            <input 
+              type="date" 
+              className="position-absolute w-100 h-100 opacity-0" 
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              style={{ cursor: 'pointer', left: 0, top: 0 }}
+              title="Selecionar Data"
+            />
           </div>
 
           <div className="position-relative">
