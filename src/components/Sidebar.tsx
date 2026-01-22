@@ -1,13 +1,18 @@
 import { LayoutDashboard, Users, Activity, Stethoscope, Clock, FileText, Settings } from 'lucide-react';
 
-const Sidebar = () => {
+interface SidebarProps {
+  currentPage: string;
+  onNavigate: (page: string) => void;
+}
+
+const Sidebar = ({ currentPage, onNavigate }: SidebarProps) => {
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: true },
-    { icon: Users, label: 'Atletas' },
-    { icon: Activity, label: 'Queixas' },
-    { icon: Stethoscope, label: 'Tratamentos' },
-    { icon: Clock, label: 'Períodos' },
-    { icon: FileText, label: 'Relatórios' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'atletas', icon: Users, label: 'Atletas' },
+    { id: 'queixas', icon: Activity, label: 'Queixas' },
+    { id: 'tratamentos', icon: Stethoscope, label: 'Tratamentos' },
+    { id: 'periodos', icon: Clock, label: 'Períodos' },
+    { id: 'relatorios', icon: FileText, label: 'Relatórios' },
   ];
 
   return (
@@ -24,10 +29,14 @@ const Sidebar = () => {
       <hr />
       <small className="text-uppercase mb-3" style={{ fontSize: '0.7rem', opacity: 0.5, fontWeight: 'bold' }}>Menu Principal</small>
       <ul className="nav nav-pills flex-column mb-auto">
-        {menuItems.map((item, index) => (
-          <li key={index} className="nav-item">
-            <a href="#" className={`nav-link text-white d-flex align-items-center ${item.active ? 'active' : ''}`} 
-               style={{ backgroundColor: item.active ? '#344161' : 'transparent', marginBottom: '5px' }}>
+        {menuItems.map((item) => (
+          <li key={item.id} className="nav-item">
+            <a 
+              href="#" 
+              onClick={(e) => { e.preventDefault(); onNavigate(item.id); }}
+              className={`nav-link text-white d-flex align-items-center ${currentPage === item.id ? 'active' : ''}`} 
+              style={{ backgroundColor: currentPage === item.id ? '#344161' : 'transparent', marginBottom: '5px' }}
+            >
               <item.icon className="me-3" size={18} />
               {item.label}
             </a>

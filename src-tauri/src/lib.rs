@@ -30,8 +30,32 @@ pub fn run() {
         // Registers all commands that can be called from JavaScript.
         .invoke_handler(tauri::generate_handler![
             greet, 
+            
+            // Player Commands
+            commands::player::get_all_players,
+            commands::player::create_player,
+            commands::player::update_player,
             commands::player::delete_player, 
+
+            // Treatment Commands
+            commands::treatment::get_all_treatments,
+            commands::treatment::create_treatment,
+            commands::treatment::update_treatment,
             commands::treatment::delete_treatment, 
+
+            // Complaint Commands
+            commands::complaint::get_all_complaints,
+            commands::complaint::create_complaint,
+            commands::complaint::update_complaint,
+            commands::complaint::delete_complaint, 
+
+            // Shift Commands
+            commands::shift::get_all_shifts,
+            commands::shift::create_shift,
+            commands::shift::update_shift,
+            commands::shift::delete_shift, 
+
+            // Record & Report Commands
             commands::report::generate_report_pdf, 
             commands::record::get_dashboard_data, 
             commands::record::get_lookup_options, 

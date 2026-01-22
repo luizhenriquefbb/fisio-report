@@ -91,3 +91,33 @@ pub struct CreateRecordRequest {
     pub status_id: i32,
     pub observation: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreatePlayerRequest {
+    pub name: String,
+    pub position: String,
+    pub photo: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdatePlayerRequest {
+    pub id: i32,
+    pub name: String,
+    pub position: String,
+    pub photo: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateGenericRequest {
+    pub name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateGenericRequest {
+    pub id: i32,
+    pub name: String,
+}
