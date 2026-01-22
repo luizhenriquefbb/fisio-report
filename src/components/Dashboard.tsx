@@ -2,6 +2,7 @@ import { Users, CheckCircle, Activity, AlertCircle, FileDown, Plus, MoreVertical
 import { invoke } from "@tauri-apps/api/core";
 import { message } from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from 'react';
+import NewRecordModal from './NewRecordModal';
 
 const SummaryCard = ({ title, count, icon: Icon, color, bgColor }: any) => (
   <div className="card border-0 shadow-sm flex-fill" style={{ backgroundColor: bgColor, borderRadius: '12px' }}>
@@ -31,6 +32,7 @@ interface DashboardRecord {
 
 const Dashboard = () => {
   const [records, setRecords] = useState<DashboardRecord[]>([]);
+  const [showNewRecordModal, setShowNewRecordModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -84,7 +86,11 @@ const Dashboard = () => {
               <FileDown size={18} className="me-2" />
               Exportar PDF
             </button>
-            <button className="btn btn-dark d-flex align-items-center px-3" style={{ borderRadius: '8px', backgroundColor: '#1a233a' }}>
+            <button 
+              className="btn btn-dark d-flex align-items-center px-3" 
+              style={{ borderRadius: '8px', backgroundColor: '#1a233a' }}
+              onClick={() => setShowNewRecordModal(true)}
+            >
               <Plus size={18} className="me-2" />
               Novo Registro
             </button>
@@ -151,8 +157,15 @@ const Dashboard = () => {
           </table>
         </div>
       </div>
+      
+      <NewRecordModal 
+        show={showNewRecordModal} 
+        onHide={() => setShowNewRecordModal(false)} 
+        onSave={loadData}
+      />
     </div>
   );
 };
 
 export default Dashboard;
+

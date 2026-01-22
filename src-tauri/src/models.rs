@@ -40,3 +40,24 @@ pub struct DashboardRecord {
     pub status_color: String,
     pub observation: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LookupData {
+    pub players: Vec<Player>,
+    pub complaints: Vec<LookupItem>,
+    pub shifts: Vec<LookupItem>,
+    pub treatments: Vec<LookupItem>,
+    pub status: Vec<LookupItem>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateRecordRequest {
+    pub player_id: i32,
+    pub complaint_id: i32,
+    pub shift_id: i32,
+    pub treatment_id: i32,
+    pub status_id: i32,
+    pub observation: String,
+}

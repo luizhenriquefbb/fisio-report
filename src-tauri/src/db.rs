@@ -122,7 +122,7 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
     Ok(conn)
 }
 
-use crate::models::DashboardRecord;
+use crate::models::{DashboardRecord, LookupData, Player, LookupItem, CreateRecordRequest};
 
 pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String> {
     let mut stmt = conn.prepare(
@@ -164,4 +164,53 @@ pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String
         records.push(row.map_err(|e| e.to_string())?);
     }
     Ok(records)
+}
+
+pub fn get_lookup_data(conn: &Connection) -> Result<LookupData, String> {
+    let mut players_stmt = conn.prepare("SELECT id, name, position, photo FROM players ORDER BY name").map_err(|e| e.to_string())?;
+    let players = players_stmt.query_map([], |row| {
+        Ok(Player {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            position: row.get(2)?,
+            photo: row.get(3)?,
+        })
+    }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
+
+    let mut complaints_stmt = conn.prepare("SELECT id, name FROM complaints ORDER BY name").map_err(|e| e.to_string())?;
+    let complaints = complaints_stmt.query_map([], |row| {
+        Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: None })
+    }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
+
+    let mut shifts_stmt = conn.prepare("SELECT id, name FROM shifts").map_err(|e| e.to_string())?;
+    let shifts = shifts_stmt.query_map([], |row| {
+        Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: None })
+    }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
+
+    let mut treatments_stmt = conn.prepare("SELECT id, name FROM treatments ORDER BY name").map_err(|e| e.to_string())?;
+    let treatments = treatments_stmt.query_map([], |row| {
+        Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: None })
+    }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
+
+    let mut status_stmt = conn.prepare("SELECT id, name, color FROM status").map_err(|e| e.to_string())?;
+    let status = status_stmt.query_map([], |row| {
+        Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: row.get(2)? })
+    }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
+
+    Ok(LookupData {
+        players,
+        complaints,
+        shifts,
+        treatments,
+        status,
+    })
+}
+
+pub fn create_record(conn: &Connection, request: CreateRecordRequest) -> Result<(), String> {
+    conn.execute(
+        "INSERT INTO records (player_id, complaint_id, shift_id, treatment_id, status_id, date, observation) 
+         VALUES (?1, ?2, ?3, ?4, ?5, date('now'), ?6)",
+        (request.player_id, request.complaint_id, request.shift_id, request.treatment_id, request.status_id, request.observation),
+    ).map_err(|e| e.to_string())?;
+    Ok(())
 }

@@ -1,8 +1,8 @@
 mod db;
 mod models;
 
-use db::{init_db, DbState, get_all_records};
-use models::DashboardRecord;
+use db::{init_db, DbState, get_all_records, get_lookup_data, create_record};
+use models::{DashboardRecord, LookupData, CreateRecordRequest};
 use tauri::{AppHandle, Manager, State};
 
 #[tauri::command]
@@ -14,6 +14,18 @@ fn greet(name: &str) -> String {
 async fn get_dashboard_data(state: State<'_, DbState>) -> Result<Vec<DashboardRecord>, String> {
     let conn = state.0.lock().unwrap();
     get_all_records(&conn)
+}
+
+#[tauri::command]
+async fn get_lookup_options(state: State<'_, DbState>) -> Result<LookupData, String> {
+    let conn = state.0.lock().unwrap();
+    get_lookup_data(&conn)
+}
+
+#[tauri::command]
+async fn create_new_record(state: State<'_, DbState>, request: CreateRecordRequest) -> Result<(), String> {
+    let conn = state.0.lock().unwrap();
+    create_record(&conn, request)
 }
 
 #[tauri::command]
@@ -78,7 +90,9 @@ pub fn run() {
             delete_player, 
             delete_treatment,
             generate_report_pdf,
-            get_dashboard_data
+            get_dashboard_data,
+            get_lookup_options,
+            create_new_record
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
