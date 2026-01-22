@@ -1,13 +1,16 @@
 use serde::{Deserialize, Serialize};
 
+// Model representing a Player in the database.
+// #[derive(...)] adds automatic features like JSON conversion (Serialize/Deserialize).
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Player {
     pub id: i32,
     pub name: String,
     pub position: String,
-    pub photo: Option<String>,
+    pub photo: Option<String>, // Option means it can be null
 }
 
+// Raw model of the 'records' table (as saved in SQLite).
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
     pub id: i32,
@@ -20,13 +23,18 @@ pub struct Record {
     pub observation: String,
 }
 
+// Generic model for list items (Treatments, Complaints, Status, etc).
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LookupItem {
     pub id: i32,
     pub name: String,
-    pub color: Option<String>,
+    pub color: Option<String>, // Only status uses color, others are null
 }
 
+// "Enriched" model for the Dashboard.
+// Combines data from multiple tables (JOINs) to make it easier for the Frontend to use.
+// #[serde(rename_all = "camelCase")] automatically converts snake_case (Rust) to camelCase (JS).
+// Ex: status_color (Rust) -> statusColor (JS)
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DashboardRecord {
@@ -47,6 +55,7 @@ pub struct DashboardRecord {
     pub observation: String,
 }
 
+// Structure received from the frontend to UPDATE a record.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateRecordRequest {
@@ -59,6 +68,8 @@ pub struct UpdateRecordRequest {
     pub observation: String,
 }
 
+// Structure that groups all auxiliary lists for dropdowns.
+// Sent in a single call to avoid multiple requests.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LookupData {
@@ -69,6 +80,7 @@ pub struct LookupData {
     pub status: Vec<LookupItem>,
 }
 
+// Structure received from the frontend to CREATE a new record.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateRecordRequest {

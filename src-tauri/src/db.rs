@@ -4,34 +4,52 @@ use tauri::AppHandle;
 use std::fs;
 use tauri::Manager;
 
+// Structure to keep the database connection safe between threads.
+// Mutex (Mutual Exclusion) ensures only one thread accesses the connection at a time.
 pub struct DbState(pub Mutex<Connection>);
 
+// Database initialization function.
+// Receives the application handle to access system paths.
+// Returns a SQLite Connection or an error String.
 pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
+    // Gets the application data directory (e.g. AppData on Windows, Application Support on Mac)
+    // .map_err(|e| e.to_string()) converts the original error to String if it fails.
     let app_dir = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
+    
+    // Creates the directory if it doesn't exist
     fs::create_dir_all(&app_dir).map_err(|e| e.to_string())?;
+    
+    // Defines the full path of the database file (fisioreport.db)
     let db_path = app_dir.join("fisioreport.db");
     
+    // Opens (or creates) the connection to the SQLite database file
     let conn = Connection::open(db_path).map_err(|e| e.to_string())?;
     
+    // Table creation if they don't exist.
+    // Executes raw SQL commands.
+    
+    // Players Table
     conn.execute(
         "CREATE TABLE IF NOT EXISTS players (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            position TEXT NOT NULL,
-            photo TEXT
+            id INTEGER PRIMARY KEY AUTOINCREMENT, -- Auto-incrementing ID
+            name TEXT NOT NULL,                   -- Required name
+            position TEXT NOT NULL,               -- Required position
+            photo TEXT                            -- Optional photo (path or base64)
         )",
-        [],
+        [], // No parameters to substitute in the query
     ).map_err(|e| e.to_string())?;
 
+    // Status Table (e.g. Cleared, Transition)
     conn.execute(
         "CREATE TABLE IF NOT EXISTS status (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            color TEXT
+            color TEXT                            -- Hex color (e.g. #FF0000)
         )",
         [],
     ).map_err(|e| e.to_string())?;
 
+    // Shifts/Periods Table (Morning, Afternoon)
     conn.execute(
         "CREATE TABLE IF NOT EXISTS shifts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,6 +58,7 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
         [],
     ).map_err(|e| e.to_string())?;
 
+    // Treatments Table
     conn.execute(
         "CREATE TABLE IF NOT EXISTS treatments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,6 +67,7 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
         [],
     ).map_err(|e| e.to_string())?;
 
+    // Complaints Table
     conn.execute(
         "CREATE TABLE IF NOT EXISTS complaints (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,6 +76,8 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
         [],
     ).map_err(|e| e.to_string())?;
 
+    // Main Table for Daily Records
+    // Establishing relationships (Foreign Keys) with other tables
     conn.execute(
         "CREATE TABLE IF NOT EXISTS records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,7 +97,8 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
         [],
     ).map_err(|e| e.to_string())?;
 
-    // Initial data population
+    // Initial Data Population (Seed)
+    // Checks if there are any status registered. If 0, inserts initial data.
     let status_count: i32 = conn.query_row("SELECT COUNT(*) FROM status", [], |row| row.get(0)).unwrap_or(0);
     if status_count == 0 {
         conn.execute("INSERT INTO status (name, color) VALUES ('LIBERADO', '#10B981')", []).ok();
@@ -83,38 +106,36 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
         conn.execute("INSERT INTO status (name, color) VALUES ('NO DM', '#EF4444')", []).ok();
     }
 
+    // Checks if there are any players. If 0, inserts initial mock data for testing.
     let players_count: i32 = conn.query_row("SELECT COUNT(*) FROM players", [], |row| row.get(0)).unwrap_or(0);
     if players_count == 0 {
-        // Players
+        // Inserting Players
         conn.execute("INSERT INTO players (name, position) VALUES ('Rafael Lima', 'Meia')", []).ok();
         conn.execute("INSERT INTO players (name, position) VALUES ('Gabriel Souza', 'Atacante')", []).ok();
         conn.execute("INSERT INTO players (name, position) VALUES ('Marcos Santos', 'Zagueiro')", []).ok();
 
-        // Complaints
+        // Inserting Complaints
         conn.execute("INSERT INTO complaints (name) VALUES ('Dor Muscular')", []).ok();
         conn.execute("INSERT INTO complaints (name) VALUES ('Entorse')", []).ok();
         conn.execute("INSERT INTO complaints (name) VALUES ('Fadiga')", []).ok();
 
-        // Shifts (Períodos)
+        // Inserting Periods
         conn.execute("INSERT INTO shifts (name) VALUES ('Manhã')", []).ok();
         conn.execute("INSERT INTO shifts (name) VALUES ('Tarde')", []).ok();
         conn.execute("INSERT INTO shifts (name) VALUES ('Integral')", []).ok();
 
-        // Treatments
+        // Inserting Treatments
         conn.execute("INSERT INTO treatments (name) VALUES ('Liberação Miofascial')", []).ok();
         conn.execute("INSERT INTO treatments (name) VALUES ('Crioterapia')", []).ok();
         conn.execute("INSERT INTO treatments (name) VALUES ('Alongamento')", []).ok();
 
-        // Records (Daily Report)
-        // 1. Rafael Lima (1) - Dor Muscular (1) - Manhã (1) - Liberação (1) - Transição (2)
+        // Inserting Example Records
         conn.execute("INSERT INTO records (player_id, complaint_id, shift_id, treatment_id, status_id, date, observation) 
                       VALUES (1, 1, 1, 1, 2, date('now'), 'Apresentou melhora significativa')", []).ok();
         
-        // 2. Gabriel Souza (2) - Entorse (2) - Tarde (2) - Crioterapia (2) - No DM (3)
         conn.execute("INSERT INTO records (player_id, complaint_id, shift_id, treatment_id, status_id, date, observation) 
                       VALUES (2, 2, 2, 2, 3, date('now'), 'Entorse grau II, repouso recomendado')", []).ok();
 
-        // 3. Marcos Santos (3) - Fadiga (3) - Integral (3) - Alongamento (3) - Liberado (1)
         conn.execute("INSERT INTO records (player_id, complaint_id, shift_id, treatment_id, status_id, date, observation) 
                       VALUES (3, 3, 3, 3, 1, date('now'), 'Adicionar observação...')", []).ok();
     }
@@ -124,6 +145,8 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
 
 use crate::models::{DashboardRecord, LookupData, Player, LookupItem, CreateRecordRequest, UpdateRecordRequest};
 
+// Function to fetch all dashboard records.
+// Performs multiple JOINs to fetch names (e.g. player name) instead of just IDs.
 pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String> {
     let mut stmt = conn.prepare(
         "SELECT 
@@ -151,6 +174,7 @@ pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String
         ORDER BY r.id DESC"
     ).map_err(|e| e.to_string())?;
 
+    // Maps each SQL result row to the DashboardRecord struct
     let rows = stmt.query_map([], |row| {
         Ok(DashboardRecord {
             id: row.get(0)?,
@@ -171,6 +195,7 @@ pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String
         })
     }).map_err(|e| e.to_string())?;
 
+    // Collects all results into a Vector (Vec)
     let mut records = Vec::new();
     for row in rows {
         records.push(row.map_err(|e| e.to_string())?);
@@ -178,7 +203,9 @@ pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String
     Ok(records)
 }
 
+// Function to update an existing record
 pub fn update_record(conn: &Connection, request: UpdateRecordRequest) -> Result<(), String> {
+    // ?1, ?2... are placeholders that will be replaced by the values in the tuple below
     conn.execute(
         "UPDATE records SET 
             player_id = ?1, 
@@ -193,12 +220,16 @@ pub fn update_record(conn: &Connection, request: UpdateRecordRequest) -> Result<
     Ok(())
 }
 
+// Function to delete a record by ID
 pub fn delete_record(conn: &Connection, id: i32) -> Result<(), String> {
     conn.execute("DELETE FROM records WHERE id = ?1", [id]).map_err(|e| e.to_string())?;
     Ok(())
 }
 
+// Helper function to load all dropdown options at once.
+// Optimizes performance by avoiding multiple frontend calls.
 pub fn get_lookup_data(conn: &Connection) -> Result<LookupData, String> {
+    // Fetch Players
     let mut players_stmt = conn.prepare("SELECT id, name, position, photo FROM players ORDER BY name").map_err(|e| e.to_string())?;
     let players = players_stmt.query_map([], |row| {
         Ok(Player {
@@ -209,21 +240,25 @@ pub fn get_lookup_data(conn: &Connection) -> Result<LookupData, String> {
         })
     }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
 
+    // Fetch Complaints
     let mut complaints_stmt = conn.prepare("SELECT id, name FROM complaints ORDER BY name").map_err(|e| e.to_string())?;
     let complaints = complaints_stmt.query_map([], |row| {
         Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: None })
     }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
 
+    // Fetch Shifts
     let mut shifts_stmt = conn.prepare("SELECT id, name FROM shifts").map_err(|e| e.to_string())?;
     let shifts = shifts_stmt.query_map([], |row| {
         Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: None })
     }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
 
+    // Fetch Treatments
     let mut treatments_stmt = conn.prepare("SELECT id, name FROM treatments ORDER BY name").map_err(|e| e.to_string())?;
     let treatments = treatments_stmt.query_map([], |row| {
         Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: None })
     }).map_err(|e| e.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
 
+    // Fetch Status (including color)
     let mut status_stmt = conn.prepare("SELECT id, name, color FROM status").map_err(|e| e.to_string())?;
     let status = status_stmt.query_map([], |row| {
         Ok(LookupItem { id: row.get(0)?, name: row.get(1)?, color: row.get(2)? })
@@ -238,6 +273,7 @@ pub fn get_lookup_data(conn: &Connection) -> Result<LookupData, String> {
     })
 }
 
+// Function to create a new record in the database
 pub fn create_record(conn: &Connection, request: CreateRecordRequest) -> Result<(), String> {
     conn.execute(
         "INSERT INTO records (player_id, complaint_id, shift_id, treatment_id, status_id, date, observation) 
