@@ -1,8 +1,8 @@
 mod db;
 mod models;
 
-use db::{init_db, DbState, get_all_records, get_lookup_data, create_record};
-use models::{DashboardRecord, LookupData, CreateRecordRequest};
+use db::{init_db, DbState, get_all_records, get_lookup_data, create_record, update_record, delete_record};
+use models::{DashboardRecord, LookupData, CreateRecordRequest, UpdateRecordRequest};
 use tauri::{AppHandle, Manager, State};
 
 #[tauri::command]
@@ -26,6 +26,18 @@ async fn get_lookup_options(state: State<'_, DbState>) -> Result<LookupData, Str
 async fn create_new_record(state: State<'_, DbState>, request: CreateRecordRequest) -> Result<(), String> {
     let conn = state.0.lock().unwrap();
     create_record(&conn, request)
+}
+
+#[tauri::command]
+async fn update_existing_record(state: State<'_, DbState>, request: UpdateRecordRequest) -> Result<(), String> {
+    let conn = state.0.lock().unwrap();
+    update_record(&conn, request)
+}
+
+#[tauri::command]
+async fn delete_record_by_id(state: State<'_, DbState>, id: i32) -> Result<(), String> {
+    let conn = state.0.lock().unwrap();
+    delete_record(&conn, id)
 }
 
 #[tauri::command]
@@ -92,7 +104,9 @@ pub fn run() {
             generate_report_pdf,
             get_dashboard_data,
             get_lookup_options,
-            create_new_record
+            create_new_record,
+            update_existing_record,
+            delete_record_by_id
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

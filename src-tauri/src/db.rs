@@ -122,17 +122,23 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
     Ok(conn)
 }
 
-use crate::models::{DashboardRecord, LookupData, Player, LookupItem, CreateRecordRequest};
+use crate::models::{DashboardRecord, LookupData, Player, LookupItem, CreateRecordRequest, UpdateRecordRequest};
 
 pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String> {
     let mut stmt = conn.prepare(
         "SELECT 
             r.id, 
+            r.player_id,
             p.name as player_name, 
             p.position, 
+            p.photo,
+            r.complaint_id,
             c.name as complaint, 
+            r.shift_id,
             s.name as shift, 
+            r.treatment_id,
             t.name as treatment, 
+            r.status_id,
             st.name as status, 
             st.color as status_color, 
             r.observation
@@ -148,14 +154,20 @@ pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String
     let rows = stmt.query_map([], |row| {
         Ok(DashboardRecord {
             id: row.get(0)?,
-            name: row.get(1)?,
-            position: row.get(2)?,
-            complaint: row.get(3)?,
-            period: row.get(4)?,
-            treatment: row.get(5)?,
-            status: row.get(6)?,
-            status_color: row.get(7)?,
-            observation: row.get(8)?,
+            player_id: row.get(1)?,
+            name: row.get(2)?,
+            position: row.get(3)?,
+            photo: row.get(4)?,
+            complaint_id: row.get(5)?,
+            complaint: row.get(6)?,
+            shift_id: row.get(7)?,
+            period: row.get(8)?,
+            treatment_id: row.get(9)?,
+            treatment: row.get(10)?,
+            status_id: row.get(11)?,
+            status: row.get(12)?,
+            status_color: row.get(13)?,
+            observation: row.get(14)?,
         })
     }).map_err(|e| e.to_string())?;
 
@@ -164,6 +176,26 @@ pub fn get_all_records(conn: &Connection) -> Result<Vec<DashboardRecord>, String
         records.push(row.map_err(|e| e.to_string())?);
     }
     Ok(records)
+}
+
+pub fn update_record(conn: &Connection, request: UpdateRecordRequest) -> Result<(), String> {
+    conn.execute(
+        "UPDATE records SET 
+            player_id = ?1, 
+            complaint_id = ?2, 
+            shift_id = ?3, 
+            treatment_id = ?4, 
+            status_id = ?5, 
+            observation = ?6
+         WHERE id = ?7",
+        (request.player_id, request.complaint_id, request.shift_id, request.treatment_id, request.status_id, request.observation, request.id),
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+pub fn delete_record(conn: &Connection, id: i32) -> Result<(), String> {
+    conn.execute("DELETE FROM records WHERE id = ?1", [id]).map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 pub fn get_lookup_data(conn: &Connection) -> Result<LookupData, String> {

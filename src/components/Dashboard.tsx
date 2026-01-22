@@ -1,7 +1,8 @@
-import { Users, CheckCircle, Activity, AlertCircle, FileDown, Plus, MoreVertical, ChevronDown } from 'lucide-react';
+import { Users, CheckCircle, Activity, AlertCircle, FileDown, Plus, MoreVertical, ChevronDown, Trash2 } from 'lucide-react';
 import { invoke } from "@tauri-apps/api/core";
-import { message } from "@tauri-apps/plugin-dialog";
+import { message, confirm } from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from 'react';
+import { Dropdown } from 'react-bootstrap';
 import NewRecordModal from './NewRecordModal';
 
 const SummaryCard = ({ title, count, icon: Icon, color, bgColor }: any) => (
@@ -20,22 +21,50 @@ const SummaryCard = ({ title, count, icon: Icon, color, bgColor }: any) => (
 
 interface DashboardRecord {
   id: number;
+  playerId: number;
   name: string;
   position: string;
+  complaintId: number;
   complaint: string;
+  shiftId: number;
   period: string;
+  treatmentId: number;
   treatment: string;
+  statusId: number;
   status: string;
   statusColor: string;
   observation: string;
 }
 
+interface LookupItem {
+  id: number;
+  name: string;
+  color?: string;
+}
+
+interface Player {
+  id: number;
+  name: string;
+  position: string;
+  photo?: string;
+}
+
+interface LookupData {
+  players: Player[];
+  complaints: LookupItem[];
+  shifts: LookupItem[];
+  treatments: LookupItem[];
+  status: LookupItem[];
+}
+
 const Dashboard = () => {
   const [records, setRecords] = useState<DashboardRecord[]>([]);
+  const [lookupData, setLookupData] = useState<LookupData | null>(null);
   const [showNewRecordModal, setShowNewRecordModal] = useState(false);
 
   useEffect(() => {
     loadData();
+    loadLookupData();
   }, []);
 
   const loadData = async () => {
@@ -48,12 +77,60 @@ const Dashboard = () => {
     }
   };
 
+  const loadLookupData = async () => {
+    try {
+      const data = await invoke<LookupData>("get_lookup_options");
+      setLookupData(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleExportPDF = async () => {
     try {
       const res = await invoke("generate_report_pdf");
       await message(res as string, { title: 'Sucesso', kind: 'info' });
     } catch (err) {
       await message(err as string, { title: 'Erro', kind: 'error' });
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    const confirmed = await confirm('Tem certeza que deseja excluir este registro?', { title: 'Confirmar Exclusão', kind: 'warning' });
+    if (!confirmed) return;
+
+    try {
+      await invoke("delete_record_by_id", { id });
+      loadData();
+      await message("Registro excluído com sucesso.", { title: 'Sucesso', kind: 'info' });
+    } catch (err) {
+      await message("Erro ao excluir: " + err, { title: 'Erro', kind: 'error' });
+    }
+  };
+
+  const handleUpdate = async (record: DashboardRecord, field: string, value: string) => {
+    const updatedRecord = { ...record, [field]: parseInt(value) };
+    
+    // Optimistic update
+    setRecords(records.map(r => r.id === record.id ? { ...r, [field]: parseInt(value) } : r));
+
+    try {
+      await invoke("update_existing_record", {
+        request: {
+          id: updatedRecord.id,
+          playerId: updatedRecord.playerId,
+          complaintId: updatedRecord.complaintId,
+          shiftId: updatedRecord.shiftId,
+          treatmentId: updatedRecord.treatmentId,
+          statusId: updatedRecord.statusId,
+          observation: updatedRecord.observation
+        }
+      });
+      // Reload to ensure consistency (e.g. if colors need to update based on status)
+      loadData();
+    } catch (err) {
+      await message("Erro ao atualizar: " + err, { title: 'Erro', kind: 'error' });
+      loadData(); // Revert
     }
   };
 
@@ -118,38 +195,97 @@ const Dashboard = () => {
                         {record.id}
                       </div>
                       <div>
-                        <div className="fw-bold">{record.name}</div>
-                        <small className="text-muted">{record.position}</small>
+                        <select 
+                          className="form-select border-0 bg-transparent fw-bold p-0" 
+                          value={record.playerId}
+                          onChange={(e) => handleUpdate(record, 'playerId', e.target.value)}
+                          style={{ width: 'auto', cursor: 'pointer' }}
+                        >
+                           {lookupData?.players.map(p => (
+                             <option key={p.id} value={p.id}>{p.name}</option>
+                           ))}
+                        </select>
+                        <small className="text-muted d-block">{record.position}</small>
                       </div>
                     </div>
                   </td>
                   <td className="py-3 border-0">
-                    <div className="d-flex align-items-center gap-2">
-                        {record.complaint} <ChevronDown size={14} className="text-muted" />
-                    </div>
+                    <select 
+                      className="form-select border-0 bg-transparent p-0" 
+                      value={record.complaintId}
+                      onChange={(e) => handleUpdate(record, 'complaintId', e.target.value)}
+                      style={{ width: 'auto', cursor: 'pointer' }}
+                    >
+                       {lookupData?.complaints.map(c => (
+                         <option key={c.id} value={c.id}>{c.name}</option>
+                       ))}
+                    </select>
                   </td>
                   <td className="py-3 border-0">
-                    <div className="d-flex align-items-center gap-2">
-                        {record.period} <ChevronDown size={14} className="text-muted" />
-                    </div>
+                     <select 
+                      className="form-select border-0 bg-transparent p-0" 
+                      value={record.shiftId}
+                      onChange={(e) => handleUpdate(record, 'shiftId', e.target.value)}
+                      style={{ width: 'auto', cursor: 'pointer' }}
+                    >
+                       {lookupData?.shifts.map(s => (
+                         <option key={s.id} value={s.id}>{s.name}</option>
+                       ))}
+                    </select>
                   </td>
                   <td className="py-3 border-0">
-                    <div className="d-flex align-items-center gap-2">
-                        {record.treatment} <ChevronDown size={14} className="text-muted" />
-                    </div>
+                     <select 
+                      className="form-select border-0 bg-transparent p-0" 
+                      value={record.treatmentId}
+                      onChange={(e) => handleUpdate(record, 'treatmentId', e.target.value)}
+                      style={{ width: 'auto', cursor: 'pointer' }}
+                    >
+                       {lookupData?.treatments.map(t => (
+                         <option key={t.id} value={t.id}>{t.name}</option>
+                       ))}
+                    </select>
                   </td>
                   <td className="py-3 border-0">
-                    <span className="badge rounded-pill d-flex align-items-center gap-1" style={{ backgroundColor: record.statusColor, width: 'fit-content', padding: '6px 12px' }}>
-                      <span className="bg-white rounded-circle" style={{ width: '6px', height: '6px' }}></span>
-                      {record.status}
-                      <ChevronDown size={12} className="ms-1" />
-                    </span>
+                    <div className="position-relative">
+                        <select 
+                        className="form-select border-0 bg-transparent p-0 ps-3 fw-bold" 
+                        value={record.statusId}
+                        onChange={(e) => handleUpdate(record, 'statusId', e.target.value)}
+                        style={{ width: 'auto', cursor: 'pointer', color: record.statusColor }}
+                        >
+                        {lookupData?.status.map(s => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                        </select>
+                        <span 
+                            className="position-absolute rounded-circle" 
+                            style={{ 
+                                width: '8px', 
+                                height: '8px', 
+                                backgroundColor: record.statusColor,
+                                left: 0,
+                                top: '50%',
+                                transform: 'translateY(-50%)'
+                            }}
+                        ></span>
+                    </div>
                   </td>
                   <td className="py-3 border-0 text-muted small" style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {record.observation}
                   </td>
                   <td className="pe-4 py-3 border-0 text-end">
-                    <MoreVertical size={18} className="text-muted" style={{ cursor: 'pointer' }} />
+                    <Dropdown align="end">
+                        <Dropdown.Toggle variant="link" className="text-muted p-0 border-0" id={`dropdown-${record.id}`}>
+                             <MoreVertical size={18} />
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                            <Dropdown.Item className="text-danger d-flex align-items-center" onClick={() => handleDelete(record.id)}>
+                                <Trash2 size={14} className="me-2" />
+                                Deletar
+                            </Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
                   </td>
                 </tr>
               ))}
