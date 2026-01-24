@@ -4,7 +4,6 @@ import {
   Activity,
   AlertCircle,
   Bell,
-  Calendar,
   CheckCircle,
   FileDown,
   MoreVertical,
@@ -148,7 +147,7 @@ const Dashboard = () => {
     field: string,
     value: string | number,
   ) => {
-    // If updating ID fields (from selects), ensure value is parsed to int. 
+    // If updating ID fields (from selects), ensure value is parsed to int.
     // If updating text fields (observation), keep as string.
     const parsedValue = typeof value === 'string' && field !== 'observation' ? parseInt(value) : value;
 
@@ -206,24 +205,6 @@ const Dashboard = () => {
     r.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const formatLongDate = (dateStr: string) => {
-    const [year, month, day] = dateStr.split("-").map(Number);
-    const date = new Date(year, month - 1, day);
-    const formatted = new Intl.DateTimeFormat("pt-BR", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(date);
-
-    return formatted
-      .split(" ")
-      .map((word) =>
-        word.length > 2 ? word.charAt(0).toUpperCase() + word.slice(1) : word,
-      )
-      .join(" ");
-  };
-
   const renderHeader = () => {
     return (
       <header className="d-flex justify-content-between align-items-center py-3 px-4 bg-white border-bottom">
@@ -251,9 +232,9 @@ const Dashboard = () => {
           </div>
 
           <div className="d-flex align-items-center text-muted">
-            <CustomDatePicker 
-              value={selectedDate} 
-              onChange={setSelectedDate} 
+            <CustomDatePicker
+              value={selectedDate}
+              onChange={setSelectedDate}
               variant="teal"
             />
           </div>

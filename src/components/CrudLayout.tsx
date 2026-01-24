@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Form, Modal, Dropdown } from 'react-bootstrap';
+import { Button, Modal, Dropdown } from 'react-bootstrap';
 import { Plus, Search, MoreVertical, Trash2, Pencil } from 'lucide-react';
 import { message, confirm } from "@tauri-apps/plugin-dialog";
 
@@ -28,17 +28,17 @@ interface CrudLayoutProps {
   initialFormData: any;
 }
 
-const CrudLayout = ({ 
-  title, 
-  subtitle, 
+const CrudLayout = ({
+  title,
+  subtitle,
   icon: Icon,
-  columns, 
-  fetchData, 
-  onDelete, 
-  onCreate, 
+  columns,
+  fetchData,
+  onDelete,
+  onCreate,
   onUpdate,
   FormComponent,
-  initialFormData 
+  initialFormData
 }: CrudLayoutProps) => {
   const [items, setItems] = useState<GenericItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,8 +104,8 @@ const CrudLayout = ({
     }
   };
 
-  const filteredItems = items.filter(item => 
-    Object.values(item).some(val => 
+  const filteredItems = items.filter(item =>
+    Object.values(item).some(val =>
       String(val).toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
@@ -129,17 +129,17 @@ const CrudLayout = ({
         <div className="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
             <div className="position-relative">
                 <Search className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" size={18} />
-                <input 
-                    type="text" 
-                    className="form-control ps-5 bg-light border-0" 
-                    placeholder="Filtrar..." 
+                <input
+                    type="text"
+                    className="form-control ps-5 bg-light border-0"
+                    placeholder="Filtrar..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     style={{ width: '300px', borderRadius: '8px' }}
                 />
             </div>
-            <Button 
-                variant="dark" 
+            <Button
+                variant="dark"
                 onClick={handleOpenCreate}
                 className="d-flex align-items-center px-3"
                 style={{ borderRadius: '8px', backgroundColor: '#1a233a' }}
@@ -207,8 +207,8 @@ const CrudLayout = ({
           <Button variant="light" onClick={() => setShowModal(false)}>
             Cancelar
           </Button>
-          <Button 
-            variant="dark" 
+          <Button
+            variant="dark"
             onClick={handleSubmit}
             style={{ backgroundColor: '#1a233a', borderColor: '#1a233a' }}
           >

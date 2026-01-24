@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { message } from "@tauri-apps/plugin-dialog";
-import { FileText, Download, Play } from 'lucide-react';
-import CustomDatePicker from '../components/CustomDatePicker';
+import { FileText, Download } from "lucide-react";
+import CustomDatePicker from "../components/CustomDatePicker";
 
 interface ReportSummary {
   date: string;
@@ -27,7 +27,9 @@ const Reports = () => {
 
   const loadReports = async () => {
     try {
-      const data = await invoke<ReportSummary[]>("get_reports", { dateFilter: filterDate || null });
+      const data = await invoke<ReportSummary[]>("get_reports", {
+        dateFilter: filterDate || null,
+      });
       setReports(data);
     } catch (err) {
       console.error(err);
@@ -44,7 +46,10 @@ const Reports = () => {
   };
 
   const handleDownloadPDF = async () => {
-    await message("Funcionalidade em desenvolvimento", { title: 'Informação', kind: 'info' });
+    await message("Funcionalidade em desenvolvimento", {
+      title: "Informação",
+      kind: "info",
+    });
   };
 
   const formatDateLabel = (dateStr: string) => {
@@ -57,25 +62,34 @@ const Reports = () => {
   };
 
   return (
-    <div className="p-4 bg-light" style={{ minHeight: 'calc(100vh - 80px)' }}>
+    <div className="p-4 bg-light" style={{ minHeight: "calc(100vh - 80px)" }}>
       <div className="row g-4 mb-5">
         {/* Generate Report Card */}
         <div className="col-md-8">
-          <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '16px' }}>
+          <div
+            className="card border-0 shadow-sm h-100"
+            style={{ borderRadius: "16px" }}
+          >
             <div className="card-body p-4">
               <h5 className="fw-bold mb-1">Gerar Relatório</h5>
-              <p className="text-muted small mb-4">Selecione uma data para gerar ou visualizar o relatório</p>
-              
+              <p className="text-muted small mb-4">
+                Selecione uma data para gerar ou visualizar o relatório
+              </p>
+
               <div className="d-flex gap-3 align-items-center mt-4 pt-2">
-                <CustomDatePicker 
-                  value={filterDate} 
-                  onChange={setFilterDate} 
+                <CustomDatePicker
+                  value={filterDate}
+                  onChange={setFilterDate}
                   placeholder="Selecionar data"
                   clearable
                 />
-                <button 
-                  className="btn btn-primary d-flex align-items-center px-4 py-2" 
-                  style={{ borderRadius: '10px', backgroundColor: '#8ea1bd', borderColor: '#8ea1bd' }}
+                <button
+                  className="btn btn-primary d-flex align-items-center px-4 py-2"
+                  style={{
+                    borderRadius: "10px",
+                    backgroundColor: "#8ea1bd",
+                    borderColor: "#8ea1bd",
+                  }}
                   onClick={loadReports}
                 >
                   <FileText size={18} className="me-2" />
@@ -88,10 +102,13 @@ const Reports = () => {
 
         {/* Stats Card */}
         <div className="col-md-4">
-          <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '16px' }}>
+          <div
+            className="card border-0 shadow-sm h-100"
+            style={{ borderRadius: "16px" }}
+          >
             <div className="card-body p-4">
               <h5 className="fw-bold mb-4">Estatísticas</h5>
-              
+
               <div className="d-flex justify-content-between mb-3">
                 <span className="text-muted">Relatórios este mês</span>
                 <span className="fw-bold">{stats?.reportsThisMonth || 0}</span>
@@ -111,20 +128,25 @@ const Reports = () => {
 
       {/* Recent Reports List */}
       <h5 className="fw-bold mb-4">Relatórios Recentes</h5>
-      <div className="card border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+      <div className="card border-0 shadow-sm" style={{ borderRadius: "16px" }}>
         <div className="card-body p-0">
           {reports.map((report, index) => (
-            <div key={report.date} className={`d-flex justify-content-between align-items-center p-4 ${index !== reports.length - 1 ? 'border-bottom' : ''}`}>
+            <div
+              key={report.date}
+              className={`d-flex justify-content-between align-items-center p-4 ${index !== reports.length - 1 ? "border-bottom" : ""}`}
+            >
               <div className="d-flex align-items-center">
                 <div className="p-3 rounded-3 bg-light me-3">
                   <FileText size={24} className="text-muted" />
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-bold">Relatório - {formatDateLabel(report.date)}</h6>
+                  <h6 className="mb-0 fw-bold">
+                    Relatório - {formatDateLabel(report.date)}
+                  </h6>
                   <small className="text-muted">{report.count} registros</small>
                 </div>
               </div>
-              <button 
+              <button
                 className="btn btn-link text-decoration-none text-dark d-flex align-items-center fw-medium"
                 onClick={handleDownloadPDF}
               >
