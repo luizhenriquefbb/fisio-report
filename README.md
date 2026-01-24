@@ -1,5 +1,7 @@
 # FisioReport 🏥
 
+[Pagina inicial](https://luizhenriquefbb.github.io/fisio-report/)
+
 **FisioReport** é uma aplicação desktop de alta performance desenvolvida para fisioterapeutas de clubes de futebol. O objetivo principal é agilizar a coleta de dados clínicos diários, substituindo planilhas manuais por uma interface intuitiva baseada em seleção rápida.
 
 ## 🚀 Funcionalidades Principais
