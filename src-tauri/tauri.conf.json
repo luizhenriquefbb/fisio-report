@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-app",
+  "productName": "FisioReport",
   "version": "0.1.0",
-  "identifier": "com.luizbarros.tauri-app",
+  "identifier": "com.luizbarros.fisioreport",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
-        "width": 800,
-        "height": 600
+        "title": "FisioReport",
+        "width": 1200,
+        "height": 800
       }
     ],
     "security": {
