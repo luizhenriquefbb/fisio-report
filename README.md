@@ -41,6 +41,7 @@ npm run tauri build
 
 - `src/`: Código fonte do frontend (React).
 - `src-tauri/`: Backend em Rust, incluindo lógica de banco de dados e comandos.
+- `src-landing-page/`: Site de marketing (Landing Page) em React + Tailwind.
 - `designs/`: Referências visuais do projeto.
 - `sqliteutils/`: Ferramentas auxiliares em Python para manutenção do banco de dados.
 

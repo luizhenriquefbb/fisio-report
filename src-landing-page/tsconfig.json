@@ -1,0 +1,21 @@
+// tsconfig.json (or jsconfig.json)
+{
+    "compilerOptions": {
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "jsx": "react-jsx",
+        "baseUrl": ".", // This is important. Paths are relative to this base.
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ],
+            "@designs/*": [
+                "./designs/*"
+            ]
+        }
+    },
+    // Ensure the appropriate files are included (this varies by project setup)
+    "include": [
+        "src/**/*"
+    ]
+}
