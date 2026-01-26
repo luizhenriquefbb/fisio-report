@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { api } from "../services/api";
 import { message } from "@tauri-apps/plugin-dialog";
 import { FileText, Download } from "lucide-react";
 import CustomDatePicker from "../components/CustomDatePicker";
@@ -27,10 +27,8 @@ const Reports = () => {
 
   const loadReports = async () => {
     try {
-      const data = await invoke<ReportSummary[]>("get_reports", {
-        dateFilter: filterDate || null,
-      });
-      setReports(data);
+      const data = await api.getReports(filterDate || undefined);
+      setReports(data as ReportSummary[]);
     } catch (err) {
       console.error(err);
     }
@@ -38,18 +36,23 @@ const Reports = () => {
 
   const loadStats = async () => {
     try {
-      const data = await invoke<ReportStats>("get_report_statistics");
-      setStats(data);
+      const data = await api.getReportStatistics();
+      setStats(data as ReportStats);
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleDownloadPDF = async () => {
-    await message("Funcionalidade em desenvolvimento", {
-      title: "Informação",
-      kind: "info",
-    });
+    try {
+      await api.generateReportPdf();
+      await message("Funcionalidade em desenvolvimento (Mock API)", {
+        title: "Informação",
+        kind: "info",
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const formatDateLabel = (dateStr: string) => {

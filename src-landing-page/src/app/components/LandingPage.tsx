@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
 import {
-  Download,
   Activity,
   Users,
   FileText,
@@ -8,9 +7,8 @@ import {
   Shield,
   Zap,
   Check,
-  Monitor,
-  Apple,
   LucideIcon,
+  LogIn,
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import exampleImage from "@designs/dashboard.png";
@@ -19,12 +17,6 @@ interface FeatureCardProps {
   icon: LucideIcon;
   title: string;
   description: string;
-  delay: number;
-}
-
-interface DownloadButtonProps {
-  os: string;
-  icon: LucideIcon;
   delay: number;
 }
 
@@ -47,26 +39,6 @@ function FeatureCard({
       </div>
       <h3 className="text-xl font-semibold text-[#1a2744] mb-3">{title}</h3>
       <p className="text-gray-600 leading-relaxed">{description}</p>
-    </motion.div>
-  );
-}
-
-function DownloadButton({ os, icon: Icon, delay }: DownloadButtonProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay, duration: 0.4 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <Button
-        size="lg"
-        className="bg-gradient-to-r from-[#06b6d4] to-[#1a2744] hover:from-[#0891b2] hover:to-[#0f172a] text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-      >
-        <Icon className="w-5 h-5 mr-2" />
-        Download para {os}
-      </Button>
     </motion.div>
   );
 }
@@ -169,9 +141,15 @@ export default function LandingPage() {
               transition={{ delay: 0.6, duration: 0.6 }}
               className="flex flex-wrap items-center justify-center gap-4 mb-16"
             >
-              <DownloadButton os="Windows" icon={Monitor} delay={0.7} />
-              <DownloadButton os="Mac" icon={Apple} delay={0.8} />
-              <DownloadButton os="Linux" icon={Download} delay={0.9} />
+              <a href="https://hosting.fisioreport-app.pages.dev/" className="no-underline">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-[#06b6d4] to-[#1a2744] hover:from-[#0891b2] hover:to-[#0f172a] text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Acessar Sistema
+                </Button>
+              </a>
             </motion.div>
           </div>
 
@@ -277,9 +255,15 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <DownloadButton os="Windows" icon={Monitor} delay={0.2} />
-              <DownloadButton os="Mac" icon={Apple} delay={0.3} />
-              <DownloadButton os="Linux" icon={Download} delay={0.4} />
+              <a href="https://hosting.fisioreport-app.pages.dev/" className="no-underline">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-[#06b6d4] to-[#1a2744] hover:from-[#0891b2] hover:to-[#0f172a] text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Acessar Sistema
+                </Button>
+              </a>
             </div>
           </motion.div>
         </div>

@@ -1,5 +1,5 @@
 import { Clock } from 'lucide-react';
-import { invoke } from "@tauri-apps/api/core";
+import { api } from '../services/api';
 import CrudLayout from '../components/CrudLayout';
 import { Form } from 'react-bootstrap';
 
@@ -32,10 +32,10 @@ const Shifts = () => {
       columns={columns}
       initialFormData={initialData}
       FormComponent={ShiftForm}
-      fetchData={() => invoke('get_all_shifts')}
-      onCreate={(data) => invoke('create_shift', { request: data })}
-      onUpdate={(data) => invoke('update_shift', { request: data })}
-      onDelete={(id) => invoke('delete_shift', { id })}
+      fetchData={() => api.getShifts()}
+      onCreate={(data) => api.createShift(data)}
+      onUpdate={(data) => api.updateShift(data)}
+      onDelete={(id) => api.deleteShift(id)}
     />
   );
 };

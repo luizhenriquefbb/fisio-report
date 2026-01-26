@@ -1,5 +1,5 @@
 import { Stethoscope } from 'lucide-react';
-import { invoke } from "@tauri-apps/api/core";
+import { api } from '../services/api';
 import CrudLayout from '../components/CrudLayout';
 import { Form } from 'react-bootstrap';
 
@@ -32,10 +32,10 @@ const Treatments = () => {
       columns={columns}
       initialFormData={initialData}
       FormComponent={TreatmentForm}
-      fetchData={() => invoke('get_all_treatments')}
-      onCreate={(data) => invoke('create_treatment', { request: data })}
-      onUpdate={(data) => invoke('update_treatment', { request: data })}
-      onDelete={(id) => invoke('delete_treatment', { id })}
+      fetchData={() => api.getTreatments()}
+      onCreate={(data) => api.createTreatment(data)}
+      onUpdate={(data) => api.updateTreatment(data)}
+      onDelete={(id) => api.deleteTreatment(id)}
     />
   );
 };

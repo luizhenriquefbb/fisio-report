@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { invoke } from "@tauri-apps/api/core";
+import { api } from '../services/api';
 import { message } from "@tauri-apps/plugin-dialog";
 
 interface LookupItem {
@@ -58,8 +58,8 @@ const NewRecordModal = ({ show, onHide, onSave }: NewRecordModalProps) => {
 
   const loadLookupData = async () => {
     try {
-      const data = await invoke<LookupData>("get_lookup_options");
-      setLookupData(data);
+      const data = await api.getLookupOptions();
+      setLookupData(data as LookupData);
     } catch (err) {
       console.error(err);
       await message("Erro ao carregar opções: " + err, { title: 'Erro', kind: 'error' });
@@ -74,15 +74,13 @@ const NewRecordModal = ({ show, onHide, onSave }: NewRecordModalProps) => {
     }
 
     try {
-      await invoke("create_new_record", {
-        request: {
-          playerId: parseInt(formData.playerId),
-          complaintId: parseInt(formData.complaintId),
-          shiftId: parseInt(formData.shiftId),
-          treatmentId: parseInt(formData.treatmentId),
-          statusId: parseInt(formData.statusId),
-          observation: formData.observation
-        }
+      await api.createRecord({
+        playerId: parseInt(formData.playerId),
+        complaintId: parseInt(formData.complaintId),
+        shiftId: parseInt(formData.shiftId),
+        treatmentId: parseInt(formData.treatmentId),
+        statusId: parseInt(formData.statusId),
+        observation: formData.observation
       });
       await message("Registro criado com sucesso!", { title: 'Sucesso', kind: 'info' });
       onSave();

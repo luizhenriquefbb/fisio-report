@@ -1,5 +1,5 @@
 import { Activity } from 'lucide-react';
-import { invoke } from "@tauri-apps/api/core";
+import { api } from '../services/api';
 import CrudLayout from '../components/CrudLayout';
 import { Form } from 'react-bootstrap';
 
@@ -32,10 +32,10 @@ const Complaints = () => {
       columns={columns}
       initialFormData={initialData}
       FormComponent={ComplaintForm}
-      fetchData={() => invoke('get_all_complaints')}
-      onCreate={(data) => invoke('create_complaint', { request: data })}
-      onUpdate={(data) => invoke('update_complaint', { request: data })}
-      onDelete={(id) => invoke('delete_complaint', { id })}
+      fetchData={() => api.getComplaints()}
+      onCreate={(data) => api.createComplaint(data)}
+      onUpdate={(data) => api.updateComplaint(data)}
+      onDelete={(id) => api.deleteComplaint(id)}
     />
   );
 };

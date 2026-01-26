@@ -1,0 +1,23 @@
+{
+	"name": "fisioreport-backend",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-03-07",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "fisioreport-db",
+			"database_id": "020fb481-d525-423c-b0c3-40e61dbea436",
+			"remote": false
+		}
+	],
+	"vars": {
+		"JWT_SECRET": "CHANGE_THIS_TO_A_SECRET_ENV_VAR" // TODO
+	}
+}

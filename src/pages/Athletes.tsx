@@ -1,5 +1,5 @@
 import { Users } from 'lucide-react';
-import { invoke } from "@tauri-apps/api/core";
+import { api } from '../services/api';
 import CrudLayout from '../components/CrudLayout';
 import { Form } from 'react-bootstrap';
 
@@ -53,10 +53,10 @@ const Athletes = () => {
       columns={columns}
       initialFormData={initialData}
       FormComponent={AthleteForm}
-      fetchData={() => invoke('get_all_players')}
-      onCreate={(data) => invoke('create_player', { request: data })}
-      onUpdate={(data) => invoke('update_player', { request: data })}
-      onDelete={(id) => invoke('delete_player', { id })}
+      fetchData={() => api.getPlayers()}
+      onCreate={(data) => api.createPlayer(data)}
+      onUpdate={(data) => api.updatePlayer(data)}
+      onDelete={(id) => api.deletePlayer(id)}
     />
   );
 };

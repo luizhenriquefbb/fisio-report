@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { api } from "../services/api";
 import { confirm, message } from "@tauri-apps/plugin-dialog";
 import {
   Activity,
@@ -91,8 +91,8 @@ const Dashboard = () => {
 
   const loadData = async () => {
     try {
-      const data = await invoke<DashboardRecord[]>("get_dashboard_data", { date: selectedDate });
-      setRecords(data);
+      const data = await api.getDashboardData(selectedDate);
+      setRecords(data as DashboardRecord[]);
     } catch (err) {
       console.error(err);
       await message("Erro ao carregar dados: " + err, {
@@ -104,8 +104,8 @@ const Dashboard = () => {
 
   const loadLookupData = async () => {
     try {
-      const data = await invoke<LookupData>("get_lookup_options");
-      setLookupData(data);
+      const data = await api.getLookupOptions();
+      setLookupData(data as LookupData);
     } catch (err) {
       console.error(err);
     }
@@ -113,8 +113,8 @@ const Dashboard = () => {
 
   const handleExportPDF = async () => {
     try {
-      const res = await invoke("generate_report_pdf");
-      await message(res as string, { title: "Sucesso", kind: "info" });
+      await api.generateReportPdf();
+      await message("Relatório gerado (Mock)", { title: "Sucesso", kind: "info" });
     } catch (err) {
       await message(err as string, { title: "Erro", kind: "error" });
     }
@@ -128,7 +128,7 @@ const Dashboard = () => {
     if (!confirmed) return;
 
     try {
-      await invoke("delete_record_by_id", { id });
+      await api.deleteRecord(id);
       loadData();
       await message("Registro excluído com sucesso.", {
         title: "Sucesso",
@@ -161,16 +161,14 @@ const Dashboard = () => {
     );
 
     try {
-      await invoke("update_existing_record", {
-        request: {
-          id: updatedRecord.id,
-          playerId: updatedRecord.playerId,
-          complaintId: updatedRecord.complaintId,
-          shiftId: updatedRecord.shiftId,
-          treatmentId: updatedRecord.treatmentId,
-          statusId: updatedRecord.statusId,
-          observation: updatedRecord.observation,
-        },
+      await api.updateRecord({
+        id: updatedRecord.id,
+        playerId: updatedRecord.playerId,
+        complaintId: updatedRecord.complaintId,
+        shiftId: updatedRecord.shiftId,
+        treatmentId: updatedRecord.treatmentId,
+        statusId: updatedRecord.statusId,
+        observation: updatedRecord.observation,
       });
       // Reload to ensure consistency (e.g. if colors need to update based on status)
       loadData();

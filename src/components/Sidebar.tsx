@@ -1,11 +1,12 @@
-import { LayoutDashboard, Users, Activity, Stethoscope, Clock, FileText, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, Stethoscope, Clock, FileText, Settings, LogOut } from 'lucide-react';
 
 interface SidebarProps {
   currentPage: string;
   onNavigate: (page: string) => void;
+  onLogout?: () => void;
 }
 
-const Sidebar = ({ currentPage, onNavigate }: SidebarProps) => {
+const Sidebar = ({ currentPage, onNavigate, onLogout }: SidebarProps) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'atletas', icon: Users, label: 'Atletas' },
@@ -49,6 +50,12 @@ const Sidebar = ({ currentPage, onNavigate }: SidebarProps) => {
             <Settings className="me-3" size={18} />
             Configurações
           </a>
+          {onLogout && (
+            <a href="#" onClick={(e) => { e.preventDefault(); onLogout(); }} className="nav-link text-danger d-flex align-items-center mt-2">
+                <LogOut className="me-3" size={18} />
+                Sair
+            </a>
+          )}
       </div>
     </div>
   );
