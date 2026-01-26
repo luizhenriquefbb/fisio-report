@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-ROOT_FOLDER=$(dirname $0)
+ROOT_FOLDER=$(dirname $0)/..
 cd $ROOT_FOLDER
 
 # infra_manager.sh (Root)

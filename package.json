@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy:cloudflare": "./infra_manager.sh deploy",
-    "destroy:cloudflare": "./infra_manager.sh destroy"
+    "deploy:cloudflare": "./infra/infra_manager.sh deploy",
+    "destroy:cloudflare": "./infra/infra_manager.sh destroy"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
