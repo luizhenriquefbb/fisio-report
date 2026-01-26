@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Modal, Dropdown } from 'react-bootstrap';
 import { Plus, Search, MoreVertical, Trash2, Pencil } from 'lucide-react';
-import { message, confirm } from "@tauri-apps/plugin-dialog";
+import { message, confirm } from "../services/dialog";
 
 // Interfaces generic enough to handle all entity types
 interface GenericItem {

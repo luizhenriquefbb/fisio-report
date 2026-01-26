@@ -1,5 +1,5 @@
 import { api } from "../services/api";
-import { confirm, message } from "@tauri-apps/plugin-dialog";
+import { message, confirm } from "../services/dialog";
 import {
   Activity,
   AlertCircle,

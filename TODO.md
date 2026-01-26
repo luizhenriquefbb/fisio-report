@@ -18,6 +18,7 @@ Lista de pendências e melhorias identificadas durante a reestruturação para S
 - [ ] **URL do App:** Atualizar o link "Acessar Sistema" na Landing Page (`src-landing-page/src/app/components/LandingPage.tsx`) com a URL final de produção.
 - [ ] **Persistência de Sessão:** Melhorar a verificação de validade do token JWT ao carregar o `App.tsx` para evitar estados inconsistentes.
 - [ ] **Tratamento de Erros:** Melhorar o feedback visual para o usuário quando a API retornar erros (mensagens mais amigáveis).
+- [ ] **Typing** Remover any das tipagens das rotas
 
 ## Infraestrutura / DevOps
 
@@ -31,4 +32,3 @@ Lista de pendências e melhorias identificadas durante a reestruturação para S
 
 ## Bugs
 
-- [ ] Refresh dos dados após criação/edição de dados. Tabelas não atualizam automaticamente.

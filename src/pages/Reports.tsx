@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../services/api";
-import { message } from "@tauri-apps/plugin-dialog";
+import { message } from "../services/dialog";
 import { FileText, Download } from "lucide-react";
 import CustomDatePicker from "../components/CustomDatePicker";
 
