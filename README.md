@@ -1,51 +1,69 @@
 # FisioReport 🏥
 
-[Pagina inicial](https://luizhenriquefbb.github.io/fisio-report/)
+[FisioReport](https://hosting.fisioreport-app.pages.dev/) (Placeholder)
 
-**FisioReport** é uma aplicação desktop de alta performance desenvolvida para fisioterapeutas de clubes de futebol. O objetivo principal é agilizar a coleta de dados clínicos diários, substituindo planilhas manuais por uma interface intuitiva baseada em seleção rápida.
+**FisioReport** é uma aplicação SaaS web de alta performance desenvolvida para fisioterapeutas de clubes de futebol. O objetivo principal é agilizar a coleta de dados clínicos diários, substituindo planilhas manuais por uma interface intuitiva baseada em seleção rápida ("selection over typing").
 
 ## 🚀 Funcionalidades Principais
 
+- **Autenticação:** Sistema de login e cadastro seguro para isolamento de dados.
 - **Dashboard Inteligente:** Visualize o status clínico do elenco em tempo real e realize edições rápidas diretamente na tabela.
-- **Gestão de Atletas:** Cadastro completo de jogadores com foto e posição.
-- **Catálogo Clínico:** Gerencie Queixas, Tratamentos e Períodos de trabalho.
-- **Relatórios Diários:** Agrupamento automático de registros por data e estatísticas mensais de atendimento.
-- **Proteção de Dados:** Sistema de integridade que impede a exclusão acidental de itens com histórico clínico vinculado.
+- **Gestão de Atletas:** Cadastro completo de jogadores com histórico clínico vinculado.
+- **Catálogo Clínico:** Gerencie Queixas, Tratamentos e Períodos de trabalho de forma estruturada.
+- **Relatórios Diários:** Agrupamento automático de atendimentos e estatísticas de evolução.
+- **Proteção de Dados:** Sistema que impede a exclusão de itens que possuam histórico clínico.
 
 ## 🛠 Tecnologias
 
-- **Backend:** Rust + Tauri v2
+- **Backend:** TypeScript + Cloudflare Workers (Hono)
 - **Frontend:** React + TypeScript + Vite
-- **Banco de Dados:** SQLite (Embutido)
-- **Interface:** Bootstrap 5 + Lucide Icons
+- **Banco de Dados:** Cloudflare D1 (SQL Relacional na borda)
+- **Hospedagem:** Cloudflare Pages
+- **Estilização:** Bootstrap 5 + Tailwind CSS (Landing Page)
 
 ## 💻 Como Executar
 
 ### Pré-requisitos
 - Node.js (v18+)
-- Rust (Cargo)
+- Wrangler CLI (`npm install -g wrangler`)
 
-### Desenvolvimento
+### Infraestrutura (Cloudflare)
+Para subir ou destruir toda a infraestrutura na Cloudflare (D1, Workers, Pages):
 ```bash
-# Instalar dependências
-npm install
-
-# Iniciar o ambiente de desenvolvimento
-npm run tauri dev
+npm run deploy:cloudflare
+# ou
+npm run destroy:cloudflare
 ```
 
-### Build (Produção)
+### Desenvolvimento Local
+
+1. **Backend:**
 ```bash
-npm run tauri build
+cd backend
+npm install
+npm run dev
+```
+
+2. **Frontend (SaaS):**
+```bash
+npm install
+npm run dev
+```
+
+3. **Landing Page:**
+```bash
+cd src-landing-page
+npm install
+npm run dev
 ```
 
 ## 📂 Estrutura do Projeto
 
-- `src/`: Código fonte do frontend (React).
-- `src-tauri/`: Backend em Rust, incluindo lógica de banco de dados e comandos.
-- `src-landing-page/`: Site de marketing (Landing Page) em React + Tailwind.
-- `designs/`: Referências visuais do projeto.
-- `sqliteutils/`: Ferramentas auxiliares em Python para manutenção do banco de dados.
+- `src/`: SaaS Frontend (React).
+- `backend/`: API em TypeScript (Cloudflare Workers).
+- `src-landing-page/`: Site de marketing.
+- `infra_manager.sh`: Script de orquestração de infraestrutura.
+- `TODO.md`: Lista de pendências e melhorias futuras.
 
 ---
-*Desenvolvido para agilizar o dia a dia no departamento médico.*
+*Transformando o departamento médico em um centro de alta performance.*
