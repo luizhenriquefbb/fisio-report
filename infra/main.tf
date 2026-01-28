@@ -21,6 +21,11 @@ variable "account_id" {
   type = string
 }
 
+variable "jwt_secret" {
+  type      = string
+  sensitive = true
+}
+
 
 # --- [1/4] Banco de Dados D1 ---
 resource "cloudflare_d1_database" "fisioreport_db" {
@@ -70,6 +75,10 @@ resource "cloudflare_workers_script" "backend_api" {
   compatibility_flags = ["nodejs_compat"]
   compatibility_date  = "2025-03-07"
 
+  plain_text_binding {
+    name = "JWT_SECRET"
+    text = var.jwt_secret
+  }
 
   d1_database_binding {
     name        = "DB"
@@ -89,7 +98,7 @@ resource "null_resource" "worker_build_pos" {
     command = "cd ${path.module}/../backend && npm run deploy"
   }
 
-  depends_on = [ cloudflare_workers_script.backend_api ]
+  depends_on = [cloudflare_workers_script.backend_api]
 }
 
 # --- [3/4] Landing Page (Pages) ---
@@ -111,7 +120,7 @@ resource "null_resource" "landing_page_build" {
     command = "cd ${path.module}/../src-landing-page && npm install && npm run build"
   }
 
-  depends_on = [ cloudflare_pages_project.landing_page ]
+  depends_on = [cloudflare_pages_project.landing_page]
 }
 
 # --- [4/4] SaaS App (Pages) ---
@@ -123,12 +132,12 @@ resource "cloudflare_pages_project" "saas_app" {
 
 resource "null_resource" "saas_app_build" {
   triggers = {
-    code_diff = sha1(join("", [for f in fileset("${path.module}/../src/dist", "**") : filesha1("${path.module}/../src/dist/${f}")]))
+    code_diff = sha1(join("", [for f in fileset("${path.module}/../dist", "**") : filesha1("${path.module}/../dist/${f}")]))
   }
 
   provisioner "local-exec" {
     command = "cd ${path.module}/../src && npm install && npm run build"
   }
 
-  depends_on = [ cloudflare_pages_project.saas_app ]
+  depends_on = [cloudflare_pages_project.saas_app]
 }
