@@ -117,7 +117,7 @@ resource "null_resource" "landing_page_build" {
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}/../src-landing-page && npm install && npm run build"
+    command = "cd ${path.module}/../src-landing-page && npm install && npm run build && npm run deploy"
   }
 
   depends_on = [cloudflare_pages_project.landing_page]
@@ -136,7 +136,7 @@ resource "null_resource" "saas_app_build" {
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}/../src && npm install && npm run build"
+    command = "cd ${path.module}/../src && npm install && npm run build && npm run deploy"
   }
 
   depends_on = [cloudflare_pages_project.saas_app]

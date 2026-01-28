@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "deploy": "wrangler pages deploy ./dist --project-name fisioreport-landing"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
