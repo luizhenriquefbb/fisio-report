@@ -111,9 +111,9 @@ const CrudLayout = ({
   );
 
   return (
-    <div className="p-4 bg-light" style={{ minHeight: 'calc(100vh - 80px)' }}>
+    <div className="p-3 p-md-4 bg-light" style={{ minHeight: 'calc(100vh - 80px)' }}>
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-5">
+      <div className="d-flex justify-content-between align-items-center mb-4 mb-md-5">
         <div className="d-flex align-items-center gap-3">
              <div className="p-3 rounded-3 bg-white shadow-sm">
                 <Icon size={24} className="text-primary" />
@@ -126,22 +126,22 @@ const CrudLayout = ({
       </div>
 
       <div className="card border-0 shadow-sm" style={{ borderRadius: '16px' }}>
-        <div className="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+        <div className="card-header bg-white border-0 p-4 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-3">
             <div className="position-relative">
                 <Search className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" size={18} />
                 <input
                     type="text"
-                    className="form-control ps-5 bg-light border-0"
+                    className="form-control ps-5 bg-light border-0 crud-search-input"
                     placeholder="Filtrar..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ width: '300px', borderRadius: '8px' }}
+                    style={{ borderRadius: '8px' }}
                 />
             </div>
             <Button
                 variant="dark"
                 onClick={handleOpenCreate}
-                className="d-flex align-items-center px-3"
+                className="d-flex align-items-center justify-content-center px-3"
                 style={{ borderRadius: '8px', backgroundColor: '#1a233a' }}
             >
                 <Plus size={18} className="me-2" />
@@ -150,43 +150,45 @@ const CrudLayout = ({
         </div>
 
         <div className="card-body p-0">
-          <table className="table mb-0 align-middle">
-            <thead className="bg-light text-muted small text-uppercase fw-bold">
-              <tr>
-                {columns.map(col => (
-                  <th key={col.key} className="ps-4 py-3 border-0">{col.label}</th>
-                ))}
-                <th className="pe-4 py-3 border-0 text-end">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map(item => (
-                <tr key={item.id} className="border-top">
+          <div className="table-responsive">
+            <table className="table mb-0 align-middle">
+              <thead className="bg-light text-muted small text-uppercase fw-bold">
+                <tr>
                   {columns.map(col => (
-                    <td key={col.key} className="ps-4 py-3 border-0">
-                      {col.render ? col.render(item) : item[col.key]}
-                    </td>
+                    <th key={col.key} className="ps-4 py-3 border-0" style={{ whiteSpace: 'nowrap' }}>{col.label}</th>
                   ))}
-                  <td className="pe-4 py-3 border-0 text-end">
-                    <Dropdown align="end">
-                        <Dropdown.Toggle variant="link" className="text-muted p-0 border-0" id={`dropdown-${item.id}`}>
-                             <MoreVertical size={18} />
-                        </Dropdown.Toggle>
-
-                        <Dropdown.Menu>
-                            <Dropdown.Item onClick={() => handleOpenEdit(item)}>
-                                <Pencil size={14} className="me-2" /> Editar
-                            </Dropdown.Item>
-                            <Dropdown.Item className="text-danger" onClick={() => handleDelete(item.id)}>
-                                <Trash2 size={14} className="me-2" /> Remover
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                  </td>
+                  <th className="pe-4 py-3 border-0 text-end">Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredItems.map(item => (
+                  <tr key={item.id} className="border-top">
+                    {columns.map(col => (
+                      <td key={col.key} className="ps-4 py-3 border-0" style={{ whiteSpace: 'nowrap' }}>
+                        {col.render ? col.render(item) : item[col.key]}
+                      </td>
+                    ))}
+                    <td className="pe-4 py-3 border-0 text-end">
+                      <Dropdown align="end">
+                          <Dropdown.Toggle variant="link" className="text-muted p-0 border-0" id={`dropdown-${item.id}`}>
+                              <MoreVertical size={18} />
+                          </Dropdown.Toggle>
+
+                          <Dropdown.Menu>
+                              <Dropdown.Item onClick={() => handleOpenEdit(item)}>
+                                  <Pencil size={14} className="me-2" /> Editar
+                              </Dropdown.Item>
+                              <Dropdown.Item className="text-danger" onClick={() => handleDelete(item.id)}>
+                                  <Trash2 size={14} className="me-2" /> Remover
+                              </Dropdown.Item>
+                          </Dropdown.Menu>
+                      </Dropdown>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {filteredItems.length === 0 && (
               <div className="text-center py-5 text-muted">
                   Nenhum registro encontrado.

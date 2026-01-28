@@ -205,7 +205,7 @@ const Dashboard = () => {
 
   const renderHeader = () => {
     return (
-      <header className="d-flex justify-content-between align-items-center py-3 px-4 bg-white border-bottom">
+      <header className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center py-3 px-4 bg-white border-bottom gap-3">
         <div>
           <h4 className="mb-0 fw-bold">Dashboard</h4>
           <small className="text-muted">
@@ -213,7 +213,7 @@ const Dashboard = () => {
           </small>
         </div>
 
-        <div className="d-flex align-items-center gap-4">
+        <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3 w-100 w-md-auto">
           <div className="position-relative">
             <Search
               className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
@@ -221,11 +221,11 @@ const Dashboard = () => {
             />
             <input
               type="text"
-              className="form-control ps-5 bg-light border-0"
+              className="form-control ps-5 bg-light border-0 w-100"
               placeholder="Buscar atleta..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "300px", borderRadius: "8px" }}
+              style={{ minWidth: "250px", borderRadius: "8px" }}
             />
           </div>
 
@@ -234,10 +234,11 @@ const Dashboard = () => {
               value={selectedDate}
               onChange={setSelectedDate}
               variant="teal"
+              className="w-100"
             />
           </div>
 
-          <div className="position-relative">
+          <div className="position-relative d-none d-md-block">
             <Bell size={20} className="text-muted" />
             <span
               className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -255,8 +256,8 @@ const Dashboard = () => {
     <>
       {renderHeader()}
 
-      <div className="p-4 bg-light" style={{ minHeight: "calc(100vh - 80px)" }}>
-        <div className="d-flex gap-4 mb-5">
+      <div className="p-3 p-md-4 bg-light" style={{ minHeight: "calc(100vh - 80px)" }}>
+        <div className="d-flex flex-column flex-lg-row gap-3 mb-4 mb-md-5">
           <SummaryCard
             title="Total de Atletas"
             count={totalAtletas}
@@ -292,42 +293,45 @@ const Dashboard = () => {
           className="card border-0 shadow-sm"
           style={{ borderRadius: "16px" }}
         >
-          <div className="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+          <div className="card-header bg-white border-0 p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
               <h5 className="mb-0 fw-bold">Relatório do Dia</h5>
               <small className="text-muted">
                 {totalAtletas} registros hoje
               </small>
             </div>
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 w-100 w-md-auto">
               <button
-                className="btn btn-outline-secondary d-flex align-items-center px-3"
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center px-3 flex-fill flex-md-grow-0"
                 style={{ borderRadius: "8px" }}
                 onClick={handleExportPDF}
               >
                 <FileDown size={18} className="me-2" />
-                Exportar PDF
+                <span className="d-none d-md-inline">Exportar PDF</span>
+                <span className="d-md-none">PDF</span>
               </button>
               <button
-                className="btn btn-dark d-flex align-items-center px-3"
+                className="btn btn-dark d-flex align-items-center justify-content-center px-3 flex-fill flex-md-grow-0"
                 style={{ borderRadius: "8px", backgroundColor: "#1a233a" }}
                 onClick={() => setShowNewRecordModal(true)}
               >
                 <Plus size={18} className="me-2" />
-                Novo Registro
+                <span className="d-none d-md-inline">Novo Registro</span>
+                <span className="d-md-none">Novo</span>
               </button>
             </div>
           </div>
           <div className="card-body p-0">
+            <div className="table-responsive">
             <table className="table mb-0 align-middle">
               <thead className="bg-light text-muted small text-uppercase fw-bold">
                 <tr>
-                  <th className="ps-4 py-3 border-0">Atleta</th>
-                  <th className="py-3 border-0">Queixa</th>
-                  <th className="py-3 border-0">Período</th>
-                  <th className="py-3 border-0">Tratamento</th>
-                  <th className="py-3 border-0">Status</th>
-                  <th className="py-3 border-0">Observações</th>
+                  <th className="ps-4 py-3 border-0" style={{ minWidth: '200px' }}>Atleta</th>
+                  <th className="py-3 border-0" style={{ minWidth: '150px' }}>Queixa</th>
+                  <th className="py-3 border-0" style={{ minWidth: '120px' }}>Período</th>
+                  <th className="py-3 border-0" style={{ minWidth: '150px' }}>Tratamento</th>
+                  <th className="py-3 border-0" style={{ minWidth: '140px' }}>Status</th>
+                  <th className="py-3 border-0" style={{ minWidth: '200px' }}>Observações</th>
                   <th className="pe-4 py-3 border-0"></th>
                 </tr>
               </thead>
@@ -488,6 +492,7 @@ const Dashboard = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 

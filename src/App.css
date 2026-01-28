@@ -48,3 +48,48 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #bbb;
 }
+
+/* Responsive Sidebar Styles */
+@media (max-width: 768px) {
+  .sidebar-wrapper {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    z-index: 1050;
+    transition: left 0.3s ease-in-out;
+  }
+  
+  .sidebar-wrapper.active {
+    left: 0;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+  }
+  
+  .mobile-header {
+    display: flex !important;
+  }
+}
+
+.mobile-header {
+  display: none;
+}
+
+/* Responsive Crud Layout */
+.crud-search-input {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .crud-search-input {
+    width: 300px !important;
+  }
+}

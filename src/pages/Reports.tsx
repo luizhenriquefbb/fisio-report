@@ -65,10 +65,10 @@ const Reports = () => {
   };
 
   return (
-    <div className="p-4 bg-light" style={{ minHeight: "calc(100vh - 80px)" }}>
+    <div className="p-3 p-md-4 bg-light" style={{ minHeight: "calc(100vh - 80px)" }}>
       <div className="row g-4 mb-5">
         {/* Generate Report Card */}
-        <div className="col-md-8">
+        <div className="col-12 col-lg-8">
           <div
             className="card border-0 shadow-sm h-100"
             style={{ borderRadius: "16px" }}
@@ -79,15 +79,16 @@ const Reports = () => {
                 Selecione uma data para gerar ou visualizar o relatório
               </p>
 
-              <div className="d-flex gap-3 align-items-center mt-4 pt-2">
+              <div className="d-flex flex-column flex-sm-row gap-3 align-items-stretch align-items-sm-center mt-4 pt-2">
                 <CustomDatePicker
                   value={filterDate}
                   onChange={setFilterDate}
                   placeholder="Selecionar data"
                   clearable
+                  className="w-100 w-sm-auto"
                 />
                 <button
-                  className="btn btn-primary d-flex align-items-center px-4 py-2"
+                  className="btn btn-primary d-flex align-items-center justify-content-center px-4 py-2"
                   style={{
                     borderRadius: "10px",
                     backgroundColor: "#8ea1bd",
@@ -104,7 +105,7 @@ const Reports = () => {
         </div>
 
         {/* Stats Card */}
-        <div className="col-md-4">
+        <div className="col-12 col-lg-4">
           <div
             className="card border-0 shadow-sm h-100"
             style={{ borderRadius: "16px" }}

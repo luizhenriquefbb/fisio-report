@@ -34,9 +34,9 @@ const CustomDatePicker = ({
   const iconColor = isTeal ? '#ffffff' : '#6c757d';
 
   return (
-    <div className={`position-relative d-inline-flex align-items-center ${className}`} style={{ minWidth: '220px' }}>
+    <div className={`position-relative d-inline-flex align-items-center ${className}`} style={{ minWidth: className.includes('w-100') ? 'auto' : '220px' }}>
       <div 
-        className="form-control d-flex align-items-center border-0 shadow-sm px-3 py-2" 
+        className="form-control d-flex align-items-center border-0 shadow-sm px-3 py-2 w-100" 
         style={{ 
             borderRadius: '10px', 
             cursor: 'pointer', 
