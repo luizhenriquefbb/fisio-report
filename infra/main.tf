@@ -132,7 +132,7 @@ resource "cloudflare_pages_project" "saas_app" {
 
 resource "null_resource" "saas_app_build" {
   triggers = {
-    code_diff = sha1(join("", [for f in fileset("${path.module}/../dist", "**") : filesha1("${path.module}/../dist/${f}")]))
+    code_diff = sha1(join("", [for f in fileset("${path.module}/../src", "**") : filesha1("${path.module}/../src/${f}")]))
   }
 
   provisioner "local-exec" {
