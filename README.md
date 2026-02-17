@@ -19,6 +19,7 @@
 - **Frontend:** React + TypeScript + Vite
 - **Banco de Dados:** Cloudflare D1 (SQL Relacional na borda)
 - **Hospedagem:** Cloudflare Pages
+- **IaC:** Terraform
 - **Estilização:** Bootstrap 5 + Tailwind CSS (Landing Page)
 
 ## 💻 Como Executar
@@ -26,13 +27,25 @@
 ### Pré-requisitos
 - Node.js (v18+)
 - Wrangler CLI (`npm install -g wrangler`)
+- Terraform (v1.0+)
 
 ### Infraestrutura (Cloudflare)
-Para subir ou destruir toda a infraestrutura na Cloudflare (D1, Workers, Pages):
+O projeto utiliza Terraform para gerenciar a infraestrutura.
+
+1. **Inicializar:**
 ```bash
-npm run deploy:cloudflare
-# ou
-npm run destroy:cloudflare
+cd infra
+terraform init
+```
+
+2. **Aplicar (Deploy):**
+```bash
+terraform apply
+```
+
+3. **Destruir:**
+```bash
+terraform destroy
 ```
 
 ### Desenvolvimento Local
@@ -59,10 +72,10 @@ npm run dev
 
 ## 📂 Estrutura do Projeto
 
+- `infra/`: Configuração Terraform (IaC).
 - `src/`: SaaS Frontend (React).
 - `backend/`: API em TypeScript (Cloudflare Workers).
 - `src-landing-page/`: Site de marketing.
-- `infra_manager.sh`: Script de orquestração de infraestrutura.
 - `TODO.md`: Lista de pendências e melhorias futuras.
 
 ---

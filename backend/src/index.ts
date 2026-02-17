@@ -177,7 +177,7 @@ app.get('/api/lookup', async (c) => {
       c.env.DB.prepare("SELECT id, name FROM complaints WHERE user_id = ? ORDER BY name").bind(userId).all(),
       c.env.DB.prepare("SELECT id, name FROM shifts WHERE user_id = ?").bind(userId).all(),
       c.env.DB.prepare("SELECT id, name FROM treatments WHERE user_id = ? ORDER BY name").bind(userId).all(),
-      c.env.DB.prepare("SELECT id, name, color FROM status WHERE user_id = ?").bind(userId).all(),
+      c.env.DB.prepare("SELECT id, name, color FROM status").all(),
     ]);
     console.log(`[DB] Lookup data fetched successfully`);
 
