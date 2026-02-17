@@ -19,6 +19,7 @@ Lista de pendências e melhorias identificadas durante a reestruturação para S
 - [ ] **Persistência de Sessão:** Melhorar a verificação de validade do token JWT ao carregar o `App.tsx` para evitar estados inconsistentes.
 - [ ] **Tratamento de Erros:** Melhorar o feedback visual para o usuário quando a API retornar erros (mensagens mais amigáveis).
 - [ ] **Typing** Remover any das tipagens das rotas
+- [ ] **Responsividade**
 
 ## Infraestrutura / DevOps
 

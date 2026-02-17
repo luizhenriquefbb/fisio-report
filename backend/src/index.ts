@@ -35,7 +35,7 @@ app.use('/api/*', async (c, next) => {
     console.log(`[AUTH] Public path access: ${c.req.path}`);
     return next();
   }
-  
+
   console.log(`[AUTH] Protected path access: ${c.req.path}`);
   try {
     const jwtMiddleware = jwt({ secret: c.env.JWT_SECRET, alg: 'HS256' });
@@ -55,32 +55,32 @@ const getUserId = (c: any) => {
 
 // --- Auth Routes ---
 
-app.post('/api/auth/register', async (c) => {
-  const { email, password } = await c.req.json();
-  console.log(`[AUTH] Registering user: ${email}`);
-  
-  if (!email || !password) {
-    return c.json({ error: 'Email and password required' }, 400);
-  }
+// app.post('/api/auth/register', async (c) => {
+//   const { email, password } = await c.req.json();
+//   console.log(`[AUTH] Registering user: ${email}`);
 
-  try {
-    console.log(`[DB] Inserting user: ${email}`);
-    const result = await c.env.DB.prepare(
-      "INSERT INTO users (email, password_hash) VALUES (?, ?)"
-    ).bind(email, password).run();
-    console.log(`[DB] User created result:`, result);
-    
-    return c.json({ message: 'User created' });
-  } catch (e: any) {
-    console.error(`[DB] Registration failed:`, e);
-    return c.json({ error: 'User already exists or error' }, 400);
-  }
-});
+//   if (!email || !password) {
+//     return c.json({ error: 'Email and password required' }, 400);
+//   }
+
+//   try {
+//     console.log(`[DB] Inserting user: ${email}`);
+//     const result = await c.env.DB.prepare(
+//       "INSERT INTO users (email, password_hash) VALUES (?, ?)"
+//     ).bind(email, password).run();
+//     console.log(`[DB] User created result:`, result);
+
+//     return c.json({ message: 'User created' });
+//   } catch (e: any) {
+//     console.error(`[DB] Registration failed:`, e);
+//     return c.json({ error: 'User already exists or error' }, 400);
+//   }
+// });
 
 app.post('/api/auth/login', async (c) => {
   const { email, password } = await c.req.json();
   console.log(`[AUTH] Login attempt: ${email}`);
-  
+
   try {
     console.log(`[DB] Querying user: ${email}`);
     const user = await c.env.DB.prepare(
@@ -117,7 +117,7 @@ app.get('/api/dashboard', async (c) => {
   }
 
   const query = `
-    SELECT 
+    SELECT
         r.id, r.player_id, p.name as player_name, p.position, p.photo,
         r.complaint_id, c.name as complaint,
         r.shift_id, s.name as shift,
@@ -170,7 +170,7 @@ app.get('/api/dashboard', async (c) => {
 app.get('/api/lookup', async (c) => {
   const userId = getUserId(c);
   console.log(`[LOOKUP] Fetching options for UserID: ${userId}`);
-  
+
   try {
     const [players, complaints, shifts, treatments, status] = await Promise.all([
       c.env.DB.prepare("SELECT id, name, position, photo FROM players WHERE user_id = ? ORDER BY name").bind(userId).all(),
@@ -200,15 +200,16 @@ app.post('/api/records', async (c) => {
   const userId = getUserId(c);
   const body = await c.req.json();
   console.log(`[RECORDS] Creating record for UserID: ${userId}`, body);
-  
+
   try {
+    const recordDate = body.date || new Date().toISOString().split('T')[0];
     const result = await c.env.DB.prepare(`
-      INSERT INTO records (user_id, player_id, complaint_id, shift_id, treatment_id, status_id, date, observation) 
-      VALUES (?, ?, ?, ?, ?, ?, date('now'), ?)
+      INSERT INTO records (user_id, player_id, complaint_id, shift_id, treatment_id, status_id, date, observation)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       userId,
       body.playerId, body.complaintId, body.shiftId,
-      body.treatmentId, body.statusId, body.observation
+      body.treatmentId, body.statusId, recordDate, body.observation
     ).run();
     console.log(`[DB] Record created:`, result);
 
@@ -227,8 +228,8 @@ app.put('/api/records/:id', async (c) => {
 
   try {
     const result = await c.env.DB.prepare(`
-      UPDATE records SET 
-          player_id = ?, complaint_id = ?, shift_id = ?, 
+      UPDATE records SET
+          player_id = ?, complaint_id = ?, shift_id = ?,
           treatment_id = ?, status_id = ?, observation = ?
       WHERE id = ? AND user_id = ?
     `).bind(
@@ -249,12 +250,12 @@ app.delete('/api/records/:id', async (c) => {
   const userId = getUserId(c);
   const id = c.req.param('id');
   console.log(`[RECORDS] Deleting record ID: ${id} for UserID: ${userId}`);
-  
+
   try {
     const result = await c.env.DB.prepare("DELETE FROM records WHERE id = ? AND user_id = ?")
       .bind(id, userId).run();
     console.log(`[DB] Record deleted result:`, result);
-      
+
     return c.json({ message: 'Deleted' });
   } catch (e: any) {
     console.error(`[DB] Record deletion failed:`, e);
@@ -282,7 +283,7 @@ app.post('/api/players', async (c) => {
   const userId = getUserId(c);
   const body = await c.req.json();
   console.log(`[PLAYERS] Creating for UserID: ${userId}`, body);
-  
+
   try {
     const result = await c.env.DB.prepare(
       "INSERT INTO players (user_id, name, position, photo) VALUES (?, ?, ?, ?)"
@@ -300,7 +301,7 @@ app.put('/api/players/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
   console.log(`[PLAYERS] Updating ID: ${id} for UserID: ${userId}`, body);
-  
+
   try {
     const result = await c.env.DB.prepare(
       "UPDATE players SET name = ?, position = ?, photo = ? WHERE id = ? AND user_id = ?"
@@ -317,7 +318,7 @@ app.delete('/api/players/:id', async (c) => {
   const userId = getUserId(c);
   const id = c.req.param('id');
   console.log(`[PLAYERS] Deleting ID: ${id} for UserID: ${userId}`);
-  
+
   try {
     const count = await c.env.DB.prepare(
       "SELECT COUNT(*) as count FROM records WHERE player_id = ? AND user_id = ?"
@@ -386,11 +387,11 @@ const handleCatalogCrud = (table: string) => {
     const userId = getUserId(c);
     const id = c.req.param('id');
     console.log(`[CATALOG][${table}] Deleting ID: ${id} for UserID: ${userId}`);
-    
+
     try {
-      const fkColumn = table.slice(0, -1) + '_id'; 
+      const fkColumn = table.slice(0, -1) + '_id';
       const count = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM records WHERE ${fkColumn} = ? AND user_id = ?`).bind(id, userId).first<any>();
-      
+
       if (count && count.count > 0) {
         console.log(`[CATALOG][${table}] Delete blocked: ${count.count} records linked`);
         return c.json({ error: `Cannot delete item with ${count.count} records` }, 400);
@@ -416,7 +417,7 @@ app.get('/api/reports', async (c) => {
   const userId = getUserId(c);
   const dateFilter = c.req.query('date');
   console.log(`[REPORTS] Fetching summaries for UserID: ${userId}, Filter: ${dateFilter}`);
-  
+
   let query = "SELECT date, COUNT(*) as count FROM records WHERE user_id = ? ";
   const params: any[] = [userId];
 
@@ -439,7 +440,7 @@ app.get('/api/reports', async (c) => {
 app.get('/api/reports/stats', async (c) => {
   const userId = getUserId(c);
   console.log(`[REPORTS] Fetching stats for UserID: ${userId}`);
-  
+
   try {
     const [total, monthStats, days] = await Promise.all([
       c.env.DB.prepare("SELECT COUNT(*) as count FROM records WHERE user_id = ?").bind(userId).first<any>(),

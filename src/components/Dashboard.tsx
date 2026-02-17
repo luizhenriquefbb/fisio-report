@@ -500,6 +500,7 @@ const Dashboard = () => {
           show={showNewRecordModal}
           onHide={() => setShowNewRecordModal(false)}
           onSave={loadData}
+          selectedDate={selectedDate}
         />
 
         <ObservationModal

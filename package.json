@@ -7,9 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "wrangler pages deploy ./dist --project-name fisioreport-app",
-    "deploy:cloudflare": "./infra/infra_manager.sh deploy",
-    "destroy:cloudflare": "./infra/infra_manager.sh destroy"
+    "deploy": "wrangler pages deploy ./dist --project-name fisioreport-app"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",

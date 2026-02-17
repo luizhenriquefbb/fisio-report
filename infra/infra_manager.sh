@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# DEPRECATED: Using terraform for infra management
+
 set -e
 ROOT_FOLDER=$(dirname $0)/..
 cd $ROOT_FOLDER
@@ -83,8 +85,43 @@ destroy() {
     echo "🔥 Infraestrutura completamente removida."
 }
 
+sync_database() {
+    echo "🔄 Sincronizando dados do banco de dados..."
+    # Sincroniza o que quer que esteja no banco remoto para o local
+
+    BACKUP_FILE="backup_$(date +%s).sql"
+
+    echo "📂 Entrando no diretório backend..."
+    cd backend
+
+    echo "⬇️  Exportando dados do ambiente remoto para $BACKUP_FILE..."
+    # Exporta schema e dados do remoto
+    npx wrangler d1 export $DB_NAME --remote --output=$BACKUP_FILE
+
+    if [ ! -f "$BACKUP_FILE" ]; then
+        echo "❌ Erro: Falha ao exportar o banco de dados. Verifique suas credenciais e o arquivo wrangler.jsonc."
+        cd ..
+        exit 1
+    fi
+
+    echo "🧹 Limpando banco de dados local antigo (.wrangler/state/v3/d1)..."
+    # Remove estado local para garantir sincronização limpa (substituição total)
+    rm -rf .wrangler/state/v3/d1
+
+    echo "⬆️  Importando dados para o ambiente local..."
+    npx wrangler d1 execute $DB_NAME --local --file=$BACKUP_FILE --yes
+
+    echo "🗑️ Removendo arquivo temporário de backup..."
+    rm $BACKUP_FILE
+
+    cd ..
+
+    echo "✅ Sincronização concluída com sucesso."
+}
+
 case "$1" in
     deploy) deploy ;;
     destroy) destroy ;;
-    *) echo "Uso: $0 {deploy|destroy}" ;;
+    sync) sync_database ;;
+    *) echo "Uso: $0 {deploy|destroy|sync}" ;;
 esac

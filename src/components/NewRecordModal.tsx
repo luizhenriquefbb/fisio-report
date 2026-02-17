@@ -28,9 +28,10 @@ interface NewRecordModalProps {
   show: boolean;
   onHide: () => void;
   onSave: () => void;
+  selectedDate: string;
 }
 
-const NewRecordModal = ({ show, onHide, onSave }: NewRecordModalProps) => {
+const NewRecordModal = ({ show, onHide, onSave, selectedDate }: NewRecordModalProps) => {
   const [lookupData, setLookupData] = useState<LookupData | null>(null);
   const [formData, setFormData] = useState({
     playerId: "",
@@ -93,6 +94,7 @@ const NewRecordModal = ({ show, onHide, onSave }: NewRecordModalProps) => {
         treatmentId: parseInt(formData.treatmentId),
         statusId: parseInt(formData.statusId),
         observation: formData.observation,
+        date: selectedDate,
       });
       await message("Registro criado com sucesso!", {
         title: "Sucesso",
