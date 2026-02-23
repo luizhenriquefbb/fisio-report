@@ -195,9 +195,13 @@ const Dashboard = () => {
   };
 
   const totalAtletas = records.length;
-  const liberados = records.filter((r) => r.status === "LIBERADO").length;
-  const emTransicao = records.filter((r) => r.status === "TRANSIÇÃO").length;
-  const noDm = records.filter((r) => r.status === "NO DM").length;
+  const liberados = records.filter(
+    (r) => r.status.toLowerCase() === "liberado",
+  ).length;
+  const emTransicao = records.filter(
+    (r) => r.status.toLowerCase() === "transição",
+  ).length;
+  const noDm = records.filter((r) => r.status.toLowerCase() === "no dm").length;
 
   const filteredRecords = records.filter((r) =>
     r.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -256,7 +260,10 @@ const Dashboard = () => {
     <>
       {renderHeader()}
 
-      <div className="p-3 p-md-4 bg-light" style={{ minHeight: "calc(100vh - 80px)" }}>
+      <div
+        className="p-3 p-md-4 bg-light"
+        style={{ minHeight: "calc(100vh - 80px)" }}
+      >
         <div className="d-flex flex-column flex-lg-row gap-3 mb-4 mb-md-5">
           <SummaryCard
             title="Total de Atletas"
@@ -326,12 +333,27 @@ const Dashboard = () => {
             <table className="table mb-0 align-middle">
               <thead className="bg-light text-muted small text-uppercase fw-bold">
                 <tr>
-                  <th className="ps-4 py-3 border-0" style={{ minWidth: '200px' }}>Atleta</th>
-                  <th className="py-3 border-0" style={{ minWidth: '150px' }}>Queixa</th>
-                  <th className="py-3 border-0" style={{ minWidth: '120px' }}>Período</th>
-                  <th className="py-3 border-0" style={{ minWidth: '150px' }}>Tratamento</th>
-                  <th className="py-3 border-0" style={{ minWidth: '140px' }}>Status</th>
-                  <th className="py-3 border-0" style={{ minWidth: '200px' }}>Observações</th>
+                    <th
+                      className="ps-4 py-3 border-0"
+                      style={{ minWidth: "200px" }}
+                    >
+                      Atleta
+                    </th>
+                    <th className="py-3 border-0" style={{ minWidth: "150px" }}>
+                      Queixa
+                    </th>
+                    <th className="py-3 border-0" style={{ minWidth: "120px" }}>
+                      Período
+                    </th>
+                    <th className="py-3 border-0" style={{ minWidth: "150px" }}>
+                      Tratamento
+                    </th>
+                    <th className="py-3 border-0" style={{ minWidth: "140px" }}>
+                      Status
+                    </th>
+                    <th className="py-3 border-0" style={{ minWidth: "200px" }}>
+                      Observações
+                    </th>
                   <th className="pe-4 py-3 border-0"></th>
                 </tr>
               </thead>

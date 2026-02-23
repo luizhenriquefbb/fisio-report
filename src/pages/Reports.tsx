@@ -65,7 +65,10 @@ const Reports = () => {
   };
 
   return (
-    <div className="p-3 p-md-4 bg-light" style={{ minHeight: "calc(100vh - 80px)" }}>
+    <div
+      className="p-3 p-md-4 bg-light"
+      style={{ minHeight: "calc(100vh - 80px)" }}
+    >
       <div className="row g-4 mb-5">
         {/* Generate Report Card */}
         <div className="col-12 col-lg-8">
