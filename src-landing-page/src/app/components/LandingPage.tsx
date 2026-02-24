@@ -141,7 +141,7 @@ export default function LandingPage() {
               transition={{ delay: 0.6, duration: 0.6 }}
               className="flex flex-wrap items-center justify-center gap-4 mb-16"
             >
-              <a href="https://hosting.fisioreport-app.pages.dev/" className="no-underline">
+              <a href="https://production.fisioreport-app.pages.dev/" className="no-underline">
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-[#06b6d4] to-[#1a2744] hover:from-[#0891b2] hover:to-[#0f172a] text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
@@ -255,7 +255,7 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <a href="https://hosting.fisioreport-app.pages.dev/" className="no-underline">
+              <a href="https://production.fisioreport-app.pages.dev/" className="no-underline">
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-[#06b6d4] to-[#1a2744] hover:from-[#0891b2] hover:to-[#0f172a] text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"

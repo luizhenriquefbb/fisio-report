@@ -1,6 +1,6 @@
 # FisioReport 🏥
 
-[FisioReport](https://hosting.fisioreport-app.pages.dev/) (Placeholder)
+[FisioReport](https://production.fisioreport-app.pages.dev/) (Placeholder)
 
 **FisioReport** é uma aplicação SaaS web de alta performance desenvolvida para fisioterapeutas de clubes de futebol. O objetivo principal é agilizar a coleta de dados clínicos diários, substituindo planilhas manuais por uma interface intuitiva baseada em seleção rápida ("selection over typing").
 
@@ -40,11 +40,13 @@ terraform init
 
 2. **Aplicar (Deploy):**
 ```bash
+cd infra
 terraform apply
 ```
 
 3. **Destruir:**
 ```bash
+cd infra
 terraform destroy
 ```
 

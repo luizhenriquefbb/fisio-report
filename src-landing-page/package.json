@@ -5,7 +5,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "deploy": "wrangler pages deploy ./dist --project-name fisioreport-landing"
+    "deploy": "wrangler pages deploy ./dist --project-name fisioreport-landing --branch=production"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
