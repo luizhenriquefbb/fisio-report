@@ -164,9 +164,19 @@ const Dashboard = () => {
     const updatedRecord = { ...record, [field]: parsedValue };
 
     // Optimistic update
-    setRecords(
-      records.map((r) =>
-        r.id === record.id ? { ...r, [field]: parsedValue } : r,
+    let extraFields: Partial<DashboardRecord> = {};
+    if (field === "statusId" && lookupData) {
+      const newStatus = lookupData.status.find((s) => s.id === parsedValue);
+      if (newStatus) {
+        extraFields = {
+          status: newStatus.name,
+          statusColor: newStatus.color || "",
+        };
+      }
+    }
+    setRecords((prev) =>
+      prev.map((r) =>
+        r.id === record.id ? { ...r, [field]: parsedValue, ...extraFields } : r,
       ),
     );
 

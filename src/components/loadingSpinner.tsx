@@ -9,6 +9,9 @@ const LoadingSpinner = () => {
         zIndex: 9999,
         backdropFilter: "blur(2px)",
       }}
+      role="status"
+      aria-live="polite"
+      aria-label="Carregando"
     >
       <div className="text-center">
         <Spinner

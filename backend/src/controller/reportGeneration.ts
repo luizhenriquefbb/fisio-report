@@ -25,6 +25,16 @@ export const generateReportPdf = async ({
 
     // 1. Format Date (e.g., 10/01/2026 – Sábado)
     const [year, month, day] = date.split("-");
+    if (
+      !year ||
+      !month ||
+      !day ||
+      isNaN(+year) ||
+      isNaN(+month) ||
+      isNaN(+day)
+    ) {
+      throw new Error(`Invalid date format: "${date}". Expected YYYY-MM-DD.`);
+    }
     const dateObj = new Date(
       parseInt(year),
       parseInt(month) - 1,
@@ -87,17 +97,17 @@ export const generateReportPdf = async ({
       }
     }
 
-    const imageAlignmentX = 105; // Center of the page (210mm width / 2)
+    const centerOfPageX = 105; // Center of the page (210mm width / 2)
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("BOTAFOGO FUTEBOL CLUBE – SAF", imageAlignmentX, 18, {
+    doc.text("BOTAFOGO FUTEBOL CLUBE – SAF", centerOfPageX, 18, {
       align: "center",
     });
     doc.setFontSize(12);
     doc.text(
       "RELATÓRIO DIÁRIO DE ATENDIMENTOS – FISIOTERAPIA",
-      imageAlignmentX,
+      centerOfPageX,
       25,
       {
         align: "center",
@@ -106,13 +116,13 @@ export const generateReportPdf = async ({
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text("Departamento de Fisioterapia", imageAlignmentX, 31, {
+    doc.text("Departamento de Fisioterapia", centerOfPageX, 31, {
       align: "center",
     });
 
     const therapistsText = `Fisioterapeutas Responsáveis: ${therapists.join(" – ")}`;
     const splitTherapists = doc.splitTextToSize(therapistsText, 75);
-    doc.text(splitTherapists, imageAlignmentX, 37, {
+    doc.text(splitTherapists, centerOfPageX, 37, {
       align: "center",
     });
 
@@ -123,9 +133,14 @@ export const generateReportPdf = async ({
     // 3. Section Title
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text("Registros clínicos e terapêuticos", 115, headerBottomY + 10, {
-      align: "center",
-    });
+    doc.text(
+      "Registros clínicos e terapêuticos",
+      centerOfPageX,
+      headerBottomY + 10,
+      {
+        align: "center",
+      },
+    );
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
@@ -195,6 +210,7 @@ export const generateReportPdf = async ({
           }
         }
       },
+      margin: { left: 10, right: 10 },
     });
 
     // 5. Final Notes (Relatório da Massagem)

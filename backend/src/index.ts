@@ -345,7 +345,7 @@ app.post("/api/players", async (c) => {
     console.log(`[DB] Player created result:`, result);
     return c.json({ message: "Created" });
   } catch (e: any) {
-    console.error(`[DB] Player creation failed:`, e);
+    console.error(`[REPORTS] Report generation failed:`, e);
     throw e;
   }
 });
@@ -575,7 +575,12 @@ app.get("/api/reports/stats", async (c) => {
 app.post("/api/generate-report", async (c) => {
   const userId = c.get("jwtPayload").user_id;
   const body = await c.req.json();
+
   const { date, therapists, finalNotes } = body;
+
+  if (!date) {
+    return c.json({ error: "Date is required" }, 400);
+  }
 
   console.log(`[REPORTS] Generating report for UserID: ${userId}`, body);
 

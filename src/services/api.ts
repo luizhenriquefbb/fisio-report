@@ -110,9 +110,21 @@ export const api = {
       body: JSON.stringify(data),
     });
 
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      window.location.reload();
+      throw new Error("Unauthorized");
+    }
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to generate PDF");
+      let message = "Failed to generate PDF";
+      try {
+        const errorData = await response.json();
+        message = errorData.error || message;
+      } catch {
+        // response body is not JSON — use default message
+      }
+      throw new Error(message);
     }
 
     const blob = await response.blob();
@@ -122,8 +134,8 @@ export const api = {
     a.download = `Relatorio_Fisio_${data.date}.pdf`;
     document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+    setTimeout(() => window.URL.revokeObjectURL(url), 100);
   },
 } as const;
 

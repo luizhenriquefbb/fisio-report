@@ -20,7 +20,7 @@ const Reports = () => {
   const [reports, setReports] = useState<ReportSummary[]>([]);
   const [stats, setStats] = useState<ReportStats | null>(null);
   const [filterDate, setFilterDate] = useState("");
-  const { isLoading, error, call } = useApi();
+  const { isLoading, call } = useApi();
 
   useEffect(() => {
     loadReports();
@@ -31,8 +31,12 @@ const Reports = () => {
     try {
       const data = await api.getReports(filterDate || undefined);
       setReports(data as ReportSummary[]);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      await message(err.message || "Erro ao carregar relatórios", {
+        title: "Erro",
+        kind: "error",
+      });
     }
   };
 
@@ -40,26 +44,27 @@ const Reports = () => {
     try {
       const data = await api.getReportStatistics();
       setStats(data as ReportStats);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
     }
   };
 
   const handleDownloadPDF = async (date: string) => {
-    await call(api.generateReportPdf, {
-      date,
-      therapists: [
-        "Márcio Quirino",
-        "Carlos Eduardo",
-        "Otávio Nascimento",
-        "Kaio Oliveira",
-      ],
-      finalNotes: "RELATÓRIO DA MASSAGEM\n\nMassoterapeuta: Paulo",
-    });
-
-    if (error) {
-      console.error(error);
-      await message(error.message || "Erro ao gerar PDF", {
+    try {
+      await call(api.generateReportPdf, {
+        date,
+        // hardcoded data for demonstration
+        therapists: [
+          "Márcio Quirino",
+          "Carlos Eduardo",
+          "Otávio Nascimento",
+          "Kaio Oliveira",
+        ],
+        finalNotes: "RELATÓRIO DA MASSAGEM\n\nMassoterapeuta: Paulo",
+      });
+    } catch (err: any) {
+      console.error(err);
+      await message(err.message || "Erro ao gerar PDF", {
         title: "Erro",
         kind: "error",
       });
@@ -111,6 +116,7 @@ const Reports = () => {
                       borderColor: "#8ea1bd",
                     }}
                     onClick={loadReports}
+                    disabled={isLoading}
                   >
                     <FileText size={18} className="me-2" />
                     Gerar Relatório
@@ -176,6 +182,7 @@ const Reports = () => {
                 <button
                   className="btn btn-link text-decoration-none text-dark d-flex align-items-center fw-medium"
                   onClick={() => handleDownloadPDF(report.date)}
+                  disabled={isLoading}
                 >
                   <Download size={18} className="me-2" />
                   Baixar PDF

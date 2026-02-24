@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
-insert into "users" (email, password_hash) values ('admin@gmail.com', 'adueweuqlsd12');
+insert or replace into "users" (id, email, password_hash) values (1, 'admin@gmail.com', 'adueweuqlsd12');
 
 CREATE TABLE IF NOT EXISTS players (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,17 +16,18 @@ CREATE TABLE IF NOT EXISTS players (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
-INSERT INTO "players" (user_id, name, position) VALUES(1,'Joao','Atacante');
+INSERT or replace INTO "players" (id, user_id, name, position) VALUES(1, 1,'Joao','Atacante');
 
 CREATE TABLE IF NOT EXISTS status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     color TEXT
 );
 
-INSERT INTO "status" VALUES(1,'NO DM','#EF4444');
-INSERT INTO "status" VALUES(2,'TRANSIÇÃO','#F59E0B');
-INSERT INTO "status" VALUES(3,'LIBERADO','#10B981');
+INSERT or ignore INTO "status" VALUES(1, 1, 'NO DM','#EF4444');
+INSERT or ignore INTO "status" VALUES(2, 1, 'TRANSIÇÃO','#F59E0B');
+INSERT or ignore INTO "status" VALUES(3, 1, 'LIBERADO','#10B981');
 
 
 CREATE TABLE IF NOT EXISTS shifts (
@@ -36,7 +37,7 @@ CREATE TABLE IF NOT EXISTS shifts (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
-insert into "shifts" (user_id, name) values (1, 'Manhã');
+insert or replace into "shifts" (id, user_id, name) values (1, 1, 'Manhã');
 
 CREATE TABLE IF NOT EXISTS treatments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,8 +46,7 @@ CREATE TABLE IF NOT EXISTS treatments (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
-INSERT INTO "treatments" (user_id, name) VALUES (1, 'Fisioterapia');
-
+INSERT or replace INTO "treatments" (id, user_id, name) VALUES (1, 1, 'Fisioterapia');
 CREATE TABLE IF NOT EXISTS complaints (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS complaints (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
-INSERT INTO "complaints" (user_id, name) VALUES (1, 'Dor muscular');
+INSERT or replace INTO "complaints" (id, user_id, name) VALUES (1, 1, 'Dor muscular');
 
 CREATE TABLE IF NOT EXISTS records (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
