@@ -69,7 +69,7 @@ resource "null_resource" "worker_build_pre" {
 resource "cloudflare_workers_script" "backend_api" {
   account_id = var.account_id
   name       = "fisioreport-backend"
-  content    = file("${path.module}/../backend/dist/index.js")
+  content    = "export default { fetch() { return new Response('dummy'); } };"
 
   module              = true
   compatibility_flags = ["nodejs_compat"]
