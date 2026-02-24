@@ -1,8 +1,9 @@
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { jwt } from 'hono/jwt';
-import { sign } from 'hono/jwt';
-import { logger } from 'hono/logger';
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { jwt } from "hono/jwt";
+import { sign } from "hono/jwt";
+import { logger } from "hono/logger";
+import { generateReportPdf } from "./controller/reportGeneration";
 
 interface Env {
   DB: D1Database;
@@ -16,21 +17,24 @@ interface User {
   password_hash: string;
 }
 
-const app = new Hono<{ Bindings: Env; Variables: { userPayload: { user_id: number } } }>();
+const app = new Hono<{
+  Bindings: Env;
+  Variables: { userPayload: { user_id: number } };
+}>();
 
 // Global Middleware
-app.use('*', logger());
-app.use('/api/*', cors());
+app.use("*", logger());
+app.use("/api/*", cors());
 
 // Error Handler
 app.onError((err, c) => {
   console.error(`[ERROR] ${c.req.method} ${c.req.path}:`, err);
-  return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  return c.json({ error: err.message || "Internal Server Error" }, 500);
 });
 
 // JWT Middleware for protected routes
-app.use('/api/*', async (c, next) => {
-  const publicPaths = ['/api/auth/login', '/api/auth/register'];
+app.use("/api/*", async (c, next) => {
+  const publicPaths = ["/api/auth/login", "/api/auth/register"];
   if (publicPaths.includes(c.req.path)) {
     console.log(`[AUTH] Public path access: ${c.req.path}`);
     return next();
@@ -38,7 +42,7 @@ app.use('/api/*', async (c, next) => {
 
   console.log(`[AUTH] Protected path access: ${c.req.path}`);
   try {
-    const jwtMiddleware = jwt({ secret: c.env.JWT_SECRET, alg: 'HS256' });
+    const jwtMiddleware = jwt({ secret: c.env.JWT_SECRET, alg: "HS256" });
     return await jwtMiddleware(c, next);
   } catch (err) {
     console.error(`[AUTH] JWT Verification failed:`, err);
@@ -48,7 +52,7 @@ app.use('/api/*', async (c, next) => {
 
 // Helper to get user ID from context
 const getUserId = (c: any) => {
-  const payload = c.get('jwtPayload');
+  const payload = c.get("jwtPayload");
   console.log(`[CONTEXT] JWT Payload:`, payload);
   return payload ? payload.user_id : null;
 };
@@ -77,25 +81,31 @@ const getUserId = (c: any) => {
 //   }
 // });
 
-app.post('/api/auth/login', async (c) => {
+app.post("/api/auth/login", async (c) => {
   const { email, password } = await c.req.json();
   console.log(`[AUTH] Login attempt: ${email}`);
 
   try {
     console.log(`[DB] Querying user: ${email}`);
     const user = await c.env.DB.prepare(
-      "SELECT * FROM users WHERE email = ? AND password_hash = ?"
-    ).bind(email, password).first<User>();
-    console.log(`[DB] User query result:`, user ? 'Found' : 'Not Found');
+      "SELECT * FROM users WHERE email = ? AND password_hash = ?",
+    )
+      .bind(email, password)
+      .first<User>();
+    console.log(`[DB] User query result:`, user ? "Found" : "Not Found");
 
     if (!user) {
-      return c.json({ error: 'Invalid credentials' }, 401);
+      return c.json({ error: "Invalid credentials" }, 401);
     }
 
-    const token = await sign({
-      user_id: user.id,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 // 7 days
-    }, c.env.JWT_SECRET, 'HS256');
+    const token = await sign(
+      {
+        user_id: user.id,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
+      },
+      c.env.JWT_SECRET,
+      "HS256",
+    );
     console.log(`[AUTH] Token generated for user ID: ${user.id}`);
 
     return c.json({ token });
@@ -107,13 +117,13 @@ app.post('/api/auth/login', async (c) => {
 
 // --- Dashboard ---
 
-app.get('/api/dashboard', async (c) => {
+app.get("/api/dashboard", async (c) => {
   const userId = getUserId(c);
-  const date = c.req.query('date');
+  const date = c.req.query("date");
   console.log(`[DASHBOARD] Fetching for UserID: ${userId}, Date: ${date}`);
 
   if (!date) {
-    return c.json({ error: 'Date required' }, 400);
+    return c.json({ error: "Date required" }, 400);
   }
 
   const query = `
@@ -155,7 +165,7 @@ app.get('/api/dashboard', async (c) => {
       statusId: row.status_id,
       status: row.status,
       statusColor: row.status_color,
-      observation: row.observation
+      observation: row.observation,
     }));
 
     return c.json(data);
@@ -167,18 +177,34 @@ app.get('/api/dashboard', async (c) => {
 
 // --- Lookup ---
 
-app.get('/api/lookup', async (c) => {
+app.get("/api/lookup", async (c) => {
   const userId = getUserId(c);
   console.log(`[LOOKUP] Fetching options for UserID: ${userId}`);
 
   try {
-    const [players, complaints, shifts, treatments, status] = await Promise.all([
-      c.env.DB.prepare("SELECT id, name, position, photo FROM players WHERE user_id = ? ORDER BY name").bind(userId).all(),
-      c.env.DB.prepare("SELECT id, name FROM complaints WHERE user_id = ? ORDER BY name").bind(userId).all(),
-      c.env.DB.prepare("SELECT id, name FROM shifts WHERE user_id = ?").bind(userId).all(),
-      c.env.DB.prepare("SELECT id, name FROM treatments WHERE user_id = ? ORDER BY name").bind(userId).all(),
-      c.env.DB.prepare("SELECT id, name, color FROM status").all(),
-    ]);
+    const [players, complaints, shifts, treatments, status] = await Promise.all(
+      [
+        c.env.DB.prepare(
+          "SELECT id, name, position, photo FROM players WHERE user_id = ? ORDER BY name",
+        )
+          .bind(userId)
+          .all(),
+        c.env.DB.prepare(
+          "SELECT id, name FROM complaints WHERE user_id = ? ORDER BY name",
+        )
+          .bind(userId)
+          .all(),
+        c.env.DB.prepare("SELECT id, name FROM shifts WHERE user_id = ?")
+          .bind(userId)
+          .all(),
+        c.env.DB.prepare(
+          "SELECT id, name FROM treatments WHERE user_id = ? ORDER BY name",
+        )
+          .bind(userId)
+          .all(),
+        c.env.DB.prepare("SELECT id, name, color FROM status").all(),
+      ],
+    );
     console.log(`[DB] Lookup data fetched successfully`);
 
     return c.json({
@@ -186,7 +212,7 @@ app.get('/api/lookup', async (c) => {
       complaints: complaints.results,
       shifts: shifts.results,
       treatments: treatments.results,
-      status: status.results
+      status: status.results,
     });
   } catch (e: any) {
     console.error(`[DB] Lookup query failed:`, e);
@@ -196,67 +222,91 @@ app.get('/api/lookup', async (c) => {
 
 // --- Records CRUD ---
 
-app.post('/api/records', async (c) => {
+app.post("/api/records", async (c) => {
   const userId = getUserId(c);
   const body = await c.req.json();
   console.log(`[RECORDS] Creating record for UserID: ${userId}`, body);
 
   try {
-    const recordDate = body.date || new Date().toISOString().split('T')[0];
-    const result = await c.env.DB.prepare(`
+    const recordDate = body.date || new Date().toISOString().split("T")[0];
+    const result = await c.env.DB.prepare(
+      `
       INSERT INTO records (user_id, player_id, complaint_id, shift_id, treatment_id, status_id, date, observation)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(
-      userId,
-      body.playerId, body.complaintId, body.shiftId,
-      body.treatmentId, body.statusId, recordDate, body.observation
-    ).run();
+    `,
+    )
+      .bind(
+        userId,
+        body.playerId,
+        body.complaintId,
+        body.shiftId,
+        body.treatmentId,
+        body.statusId,
+        recordDate,
+        body.observation,
+      )
+      .run();
     console.log(`[DB] Record created:`, result);
 
-    return c.json({ message: 'Created' });
+    return c.json({ message: "Created" });
   } catch (e: any) {
     console.error(`[DB] Record creation failed:`, e);
     throw e;
   }
 });
 
-app.put('/api/records/:id', async (c) => {
+app.put("/api/records/:id", async (c) => {
   const userId = getUserId(c);
-  const id = c.req.param('id');
+  const id = c.req.param("id");
   const body = await c.req.json();
-  console.log(`[RECORDS] Updating record ID: ${id} for UserID: ${userId}`, body);
+  console.log(
+    `[RECORDS] Updating record ID: ${id} for UserID: ${userId}`,
+    body,
+  );
 
   try {
-    const result = await c.env.DB.prepare(`
+    const result = await c.env.DB.prepare(
+      `
       UPDATE records SET
           player_id = ?, complaint_id = ?, shift_id = ?,
           treatment_id = ?, status_id = ?, observation = ?
       WHERE id = ? AND user_id = ?
-    `).bind(
-      body.playerId, body.complaintId, body.shiftId,
-      body.treatmentId, body.statusId, body.observation,
-      id, userId
-    ).run();
+    `,
+    )
+      .bind(
+        body.playerId,
+        body.complaintId,
+        body.shiftId,
+        body.treatmentId,
+        body.statusId,
+        body.observation,
+        id,
+        userId,
+      )
+      .run();
     console.log(`[DB] Record updated result:`, result);
 
-    return c.json({ message: 'Updated' });
+    return c.json({ message: "Updated" });
   } catch (e: any) {
     console.error(`[DB] Record update failed:`, e);
     throw e;
   }
 });
 
-app.delete('/api/records/:id', async (c) => {
+app.delete("/api/records/:id", async (c) => {
   const userId = getUserId(c);
-  const id = c.req.param('id');
+  const id = c.req.param("id");
   console.log(`[RECORDS] Deleting record ID: ${id} for UserID: ${userId}`);
 
   try {
-    const result = await c.env.DB.prepare("DELETE FROM records WHERE id = ? AND user_id = ?")
-      .bind(id, userId).run();
+    const result = await c.env.DB.prepare(
+      "DELETE FROM records WHERE id = ? AND user_id = ?",
+    )
+      .bind(id, userId)
+      .run();
     console.log(`[DB] Record deleted result:`, result);
 
-    return c.json({ message: 'Deleted' });
+    return c.json({ message: "Deleted" });
   } catch (e: any) {
     console.error(`[DB] Record deletion failed:`, e);
     throw e;
@@ -265,13 +315,15 @@ app.delete('/api/records/:id', async (c) => {
 
 // --- Players CRUD ---
 
-app.get('/api/players', async (c) => {
+app.get("/api/players", async (c) => {
   const userId = getUserId(c);
   console.log(`[PLAYERS] Fetching for UserID: ${userId}`);
   try {
     const { results } = await c.env.DB.prepare(
-      "SELECT * FROM players WHERE user_id = ? ORDER BY name"
-    ).bind(userId).all();
+      "SELECT * FROM players WHERE user_id = ? ORDER BY name",
+    )
+      .bind(userId)
+      .all();
     return c.json(results);
   } catch (e: any) {
     console.error(`[DB] Players fetch failed:`, e);
@@ -279,61 +331,74 @@ app.get('/api/players', async (c) => {
   }
 });
 
-app.post('/api/players', async (c) => {
+app.post("/api/players", async (c) => {
   const userId = getUserId(c);
   const body = await c.req.json();
   console.log(`[PLAYERS] Creating for UserID: ${userId}`, body);
 
   try {
     const result = await c.env.DB.prepare(
-      "INSERT INTO players (user_id, name, position, photo) VALUES (?, ?, ?, ?)"
-    ).bind(userId, body.name, body.position, body.photo || null).run();
+      "INSERT INTO players (user_id, name, position, photo) VALUES (?, ?, ?, ?)",
+    )
+      .bind(userId, body.name, body.position, body.photo || null)
+      .run();
     console.log(`[DB] Player created result:`, result);
-    return c.json({ message: 'Created' });
+    return c.json({ message: "Created" });
   } catch (e: any) {
     console.error(`[DB] Player creation failed:`, e);
     throw e;
   }
 });
 
-app.put('/api/players/:id', async (c) => {
+app.put("/api/players/:id", async (c) => {
   const userId = getUserId(c);
-  const id = c.req.param('id');
+  const id = c.req.param("id");
   const body = await c.req.json();
   console.log(`[PLAYERS] Updating ID: ${id} for UserID: ${userId}`, body);
 
   try {
     const result = await c.env.DB.prepare(
-      "UPDATE players SET name = ?, position = ?, photo = ? WHERE id = ? AND user_id = ?"
-    ).bind(body.name, body.position, body.photo || null, id, userId).run();
+      "UPDATE players SET name = ?, position = ?, photo = ? WHERE id = ? AND user_id = ?",
+    )
+      .bind(body.name, body.position, body.photo || null, id, userId)
+      .run();
     console.log(`[DB] Player updated result:`, result);
-    return c.json({ message: 'Updated' });
+    return c.json({ message: "Updated" });
   } catch (e: any) {
     console.error(`[DB] Player update failed:`, e);
     throw e;
   }
 });
 
-app.delete('/api/players/:id', async (c) => {
+app.delete("/api/players/:id", async (c) => {
   const userId = getUserId(c);
-  const id = c.req.param('id');
+  const id = c.req.param("id");
   console.log(`[PLAYERS] Deleting ID: ${id} for UserID: ${userId}`);
 
   try {
     const count = await c.env.DB.prepare(
-      "SELECT COUNT(*) as count FROM records WHERE player_id = ? AND user_id = ?"
-    ).bind(id, userId).first<any>();
+      "SELECT COUNT(*) as count FROM records WHERE player_id = ? AND user_id = ?",
+    )
+      .bind(id, userId)
+      .first<any>();
 
     if (count && count.count > 0) {
-      console.log(`[PLAYERS] Delete blocked: ${count.count} records linked to player ${id}`);
-      return c.json({ error: `Cannot delete player with ${count.count} records` }, 400);
+      console.log(
+        `[PLAYERS] Delete blocked: ${count.count} records linked to player ${id}`,
+      );
+      return c.json(
+        { error: `Cannot delete player with ${count.count} records` },
+        400,
+      );
     }
 
     const result = await c.env.DB.prepare(
-      "DELETE FROM players WHERE id = ? AND user_id = ?"
-    ).bind(id, userId).run();
+      "DELETE FROM players WHERE id = ? AND user_id = ?",
+    )
+      .bind(id, userId)
+      .run();
     console.log(`[DB] Player deleted result:`, result);
-    return c.json({ message: 'Deleted' });
+    return c.json({ message: "Deleted" });
   } catch (e: any) {
     console.error(`[DB] Player deletion failed:`, e);
     throw e;
@@ -346,7 +411,11 @@ const handleCatalogCrud = (table: string) => {
     const userId = getUserId(c);
     console.log(`[CATALOG][${table}] Fetching for UserID: ${userId}`);
     try {
-      const { results } = await c.env.DB.prepare(`SELECT * FROM ${table} WHERE user_id = ? ORDER BY name`).bind(userId).all();
+      const { results } = await c.env.DB.prepare(
+        `SELECT * FROM ${table} WHERE user_id = ? ORDER BY name`,
+      )
+        .bind(userId)
+        .all();
       return c.json(results);
     } catch (e: any) {
       console.error(`[DB][${table}] Fetch failed:`, e);
@@ -359,9 +428,13 @@ const handleCatalogCrud = (table: string) => {
     const body = await c.req.json();
     console.log(`[CATALOG][${table}] Creating for UserID: ${userId}`, body);
     try {
-      const result = await c.env.DB.prepare(`INSERT INTO ${table} (user_id, name) VALUES (?, ?)`).bind(userId, body.name).run();
+      const result = await c.env.DB.prepare(
+        `INSERT INTO ${table} (user_id, name) VALUES (?, ?)`,
+      )
+        .bind(userId, body.name)
+        .run();
       console.log(`[DB][${table}] Created result:`, result);
-      return c.json({ message: 'Created' });
+      return c.json({ message: "Created" });
     } catch (e: any) {
       console.error(`[DB][${table}] Creation failed:`, e);
       throw e;
@@ -370,13 +443,20 @@ const handleCatalogCrud = (table: string) => {
 
   app.put(`/api/${table}/:id`, async (c) => {
     const userId = getUserId(c);
-    const id = c.req.param('id');
+    const id = c.req.param("id");
     const body = await c.req.json();
-    console.log(`[CATALOG][${table}] Updating ID: ${id} for UserID: ${userId}`, body);
+    console.log(
+      `[CATALOG][${table}] Updating ID: ${id} for UserID: ${userId}`,
+      body,
+    );
     try {
-      const result = await c.env.DB.prepare(`UPDATE ${table} SET name = ? WHERE id = ? AND user_id = ?`).bind(body.name, id, userId).run();
+      const result = await c.env.DB.prepare(
+        `UPDATE ${table} SET name = ? WHERE id = ? AND user_id = ?`,
+      )
+        .bind(body.name, id, userId)
+        .run();
       console.log(`[DB][${table}] Updated result:`, result);
-      return c.json({ message: 'Updated' });
+      return c.json({ message: "Updated" });
     } catch (e: any) {
       console.error(`[DB][${table}] Update failed:`, e);
       throw e;
@@ -385,21 +465,34 @@ const handleCatalogCrud = (table: string) => {
 
   app.delete(`/api/${table}/:id`, async (c) => {
     const userId = getUserId(c);
-    const id = c.req.param('id');
+    const id = c.req.param("id");
     console.log(`[CATALOG][${table}] Deleting ID: ${id} for UserID: ${userId}`);
 
     try {
-      const fkColumn = table.slice(0, -1) + '_id';
-      const count = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM records WHERE ${fkColumn} = ? AND user_id = ?`).bind(id, userId).first<any>();
+      const fkColumn = table.slice(0, -1) + "_id";
+      const count = await c.env.DB.prepare(
+        `SELECT COUNT(*) as count FROM records WHERE ${fkColumn} = ? AND user_id = ?`,
+      )
+        .bind(id, userId)
+        .first<any>();
 
       if (count && count.count > 0) {
-        console.log(`[CATALOG][${table}] Delete blocked: ${count.count} records linked`);
-        return c.json({ error: `Cannot delete item with ${count.count} records` }, 400);
+        console.log(
+          `[CATALOG][${table}] Delete blocked: ${count.count} records linked`,
+        );
+        return c.json(
+          { error: `Cannot delete item with ${count.count} records` },
+          400,
+        );
       }
 
-      const result = await c.env.DB.prepare(`DELETE FROM ${table} WHERE id = ? AND user_id = ?`).bind(id, userId).run();
+      const result = await c.env.DB.prepare(
+        `DELETE FROM ${table} WHERE id = ? AND user_id = ?`,
+      )
+        .bind(id, userId)
+        .run();
       console.log(`[DB][${table}] Deleted result:`, result);
-      return c.json({ message: 'Deleted' });
+      return c.json({ message: "Deleted" });
     } catch (e: any) {
       console.error(`[DB][${table}] Deletion failed:`, e);
       throw e;
@@ -407,16 +500,18 @@ const handleCatalogCrud = (table: string) => {
   });
 };
 
-handleCatalogCrud('complaints');
-handleCatalogCrud('shifts');
-handleCatalogCrud('treatments');
+handleCatalogCrud("complaints");
+handleCatalogCrud("shifts");
+handleCatalogCrud("treatments");
 
 // --- Reports ---
 
-app.get('/api/reports', async (c) => {
+app.get("/api/reports", async (c) => {
   const userId = getUserId(c);
-  const dateFilter = c.req.query('date');
-  console.log(`[REPORTS] Fetching summaries for UserID: ${userId}, Filter: ${dateFilter}`);
+  const dateFilter = c.req.query("date");
+  console.log(
+    `[REPORTS] Fetching summaries for UserID: ${userId}, Filter: ${dateFilter}`,
+  );
 
   let query = "SELECT date, COUNT(*) as count FROM records WHERE user_id = ? ";
   const params: any[] = [userId];
@@ -429,7 +524,9 @@ app.get('/api/reports', async (c) => {
   query += "GROUP BY date ORDER BY date DESC";
 
   try {
-    const { results } = await c.env.DB.prepare(query).bind(...params).all();
+    const { results } = await c.env.DB.prepare(query)
+      .bind(...params)
+      .all();
     return c.json(results);
   } catch (e: any) {
     console.error(`[DB] Reports fetch failed:`, e);
@@ -437,17 +534,27 @@ app.get('/api/reports', async (c) => {
   }
 });
 
-app.get('/api/reports/stats', async (c) => {
+app.get("/api/reports/stats", async (c) => {
   const userId = getUserId(c);
   console.log(`[REPORTS] Fetching stats for UserID: ${userId}`);
 
   try {
     const [total, monthStats, days] = await Promise.all([
-      c.env.DB.prepare("SELECT COUNT(*) as count FROM records WHERE user_id = ?").bind(userId).first<any>(),
       c.env.DB.prepare(
-        "SELECT COUNT(DISTINCT date) as count FROM records WHERE user_id = ? AND strftime('%m', date) = strftime('%m', 'now') AND strftime('%Y', date) = strftime('%Y', 'now')"
-      ).bind(userId).first<any>(),
-      c.env.DB.prepare("SELECT COUNT(DISTINCT date) as count FROM records WHERE user_id = ?").bind(userId).first<any>()
+        "SELECT COUNT(*) as count FROM records WHERE user_id = ?",
+      )
+        .bind(userId)
+        .first<any>(),
+      c.env.DB.prepare(
+        "SELECT COUNT(DISTINCT date) as count FROM records WHERE user_id = ? AND strftime('%m', date) = strftime('%m', 'now') AND strftime('%Y', date) = strftime('%Y', 'now')",
+      )
+        .bind(userId)
+        .first<any>(),
+      c.env.DB.prepare(
+        "SELECT COUNT(DISTINCT date) as count FROM records WHERE user_id = ?",
+      )
+        .bind(userId)
+        .first<any>(),
     ]);
 
     const totalRecords = total?.count || 0;
@@ -457,11 +564,60 @@ app.get('/api/reports/stats', async (c) => {
     return c.json({
       totalRecords,
       reportsThisMonth: monthStats?.count || 0,
-      averagePerDay: Math.round(average * 10) / 10
+      averagePerDay: Math.round(average * 10) / 10,
     });
   } catch (e: any) {
     console.error(`[DB] Stats fetch failed:`, e);
     throw e;
+  }
+});
+
+app.post("/api/generate-report", async (c) => {
+  const userId = c.get("jwtPayload").user_id;
+  const body = await c.req.json();
+  const { date, therapists, finalNotes } = body;
+
+  console.log(`[REPORTS] Generating report for UserID: ${userId}`, body);
+
+  try {
+    // 1. Fetch data from D1
+    const query = `
+      SELECT
+          p.name as player_name,
+          c.name as complaint,
+          s.name as shift,
+          t.name as treatment,
+          st.name as status,
+          st.color as status_color,
+          r.observation
+      FROM records r
+      JOIN players p ON r.player_id = p.id
+      JOIN complaints c ON r.complaint_id = c.id
+      JOIN shifts s ON r.shift_id = s.id
+      JOIN treatments t ON r.treatment_id = t.id
+      JOIN status st ON r.status_id = st.id
+      WHERE r.user_id = ? AND r.date = ?
+      ORDER BY r.id ASC
+    `;
+
+    const { results } = await c.env.DB.prepare(query).bind(userId, date).all();
+    const records = results as any[];
+
+    if (records.length === 0) {
+      return c.json({ error: "No records found for the selected date." }, 404);
+    }
+
+    const pdfBlob = await generateReportPdf({
+      records,
+      date,
+      therapists,
+      finalNotes,
+    });
+
+    return pdfBlob;
+  } catch (e: any) {
+    console.error(`[DB] Player creation failed:`, e);
+    return c.json({ error: "Failed to generate PDF: " + e.message }, 500);
   }
 });
 

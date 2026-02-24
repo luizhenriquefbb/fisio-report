@@ -80,9 +80,13 @@ const Dashboard = () => {
   const [lookupData, setLookupData] = useState<LookupData | null>(null);
   const [showNewRecordModal, setShowNewRecordModal] = useState(false);
   const [showObservationModal, setShowObservationModal] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<DashboardRecord | null>(null);
+  const [editingRecord, setEditingRecord] = useState<DashboardRecord | null>(
+    null,
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
 
   useEffect(() => {
     loadData();
@@ -113,8 +117,11 @@ const Dashboard = () => {
 
   const handleExportPDF = async () => {
     try {
-      await api.generateReportPdf();
-      await message("Relatório gerado (Mock)", { title: "Sucesso", kind: "info" });
+      await api.generateReportPdf({
+        date: selectedDate,
+        therapists: [],
+        finalNotes: "",
+      });
     } catch (err) {
       await message(err as string, { title: "Erro", kind: "error" });
     }
@@ -149,7 +156,10 @@ const Dashboard = () => {
   ) => {
     // If updating ID fields (from selects), ensure value is parsed to int.
     // If updating text fields (observation), keep as string.
-    const parsedValue = typeof value === 'string' && field !== 'observation' ? parseInt(value) : value;
+    const parsedValue =
+      typeof value === "string" && field !== "observation"
+        ? parseInt(value)
+        : value;
 
     const updatedRecord = { ...record, [field]: parsedValue };
 
@@ -188,7 +198,7 @@ const Dashboard = () => {
 
   const saveObservation = async (newObservation: string) => {
     if (editingRecord) {
-      await handleUpdate(editingRecord, 'observation', newObservation);
+      await handleUpdate(editingRecord, "observation", newObservation);
       setShowObservationModal(false);
       setEditingRecord(null);
     }
@@ -330,9 +340,9 @@ const Dashboard = () => {
           </div>
           <div className="card-body p-0">
             <div className="table-responsive">
-            <table className="table mb-0 align-middle">
-              <thead className="bg-light text-muted small text-uppercase fw-bold">
-                <tr>
+              <table className="table mb-0 align-middle">
+                <thead className="bg-light text-muted small text-uppercase fw-bold">
+                  <tr>
                     <th
                       className="ps-4 py-3 border-0"
                       style={{ minWidth: "200px" }}
@@ -354,166 +364,166 @@ const Dashboard = () => {
                     <th className="py-3 border-0" style={{ minWidth: "200px" }}>
                       Observações
                     </th>
-                  <th className="pe-4 py-3 border-0"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.map((record) => (
-                  <tr key={record.id} className="border-top">
-                    <td className="ps-4 py-3 border-0">
-                      <div className="d-flex align-items-center">
-                        <div
-                          className="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
-                          style={{
-                            width: "40px",
-                            height: "40px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {record.id}
-                        </div>
-                        <div>
-                          <select
-                            className="form-select border-0 bg-transparent fw-bold p-0 select-inline"
-                            value={record.playerId}
-                            onChange={(e) =>
-                              handleUpdate(record, "playerId", e.target.value)
-                            }
-                            aria-label="Selecionar Atleta"
+                    <th className="pe-4 py-3 border-0"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRecords.map((record) => (
+                    <tr key={record.id} className="border-top">
+                      <td className="ps-4 py-3 border-0">
+                        <div className="d-flex align-items-center">
+                          <div
+                            className="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              fontWeight: "bold",
+                            }}
                           >
-                            {lookupData?.players.map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.name}
-                              </option>
-                            ))}
-                          </select>
-                          <small className="text-muted d-block">
-                            {record.position}
-                          </small>
+                            {record.id}
+                          </div>
+                          <div>
+                            <select
+                              className="form-select border-0 bg-transparent fw-bold p-0 select-inline"
+                              value={record.playerId}
+                              onChange={(e) =>
+                                handleUpdate(record, "playerId", e.target.value)
+                              }
+                              aria-label="Selecionar Atleta"
+                            >
+                              {lookupData?.players.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name}
+                                </option>
+                              ))}
+                            </select>
+                            <small className="text-muted d-block">
+                              {record.position}
+                            </small>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-3 border-0">
-                      <select
-                        className="form-select border-0 bg-transparent p-0 select-inline"
-                        value={record.complaintId}
-                        onChange={(e) =>
-                          handleUpdate(record, "complaintId", e.target.value)
-                        }
-                        aria-label="Selecionar Queixa"
-                      >
-                        {lookupData?.complaints.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-3 border-0">
-                      <select
-                        className="form-select border-0 bg-transparent p-0 select-inline"
-                        value={record.shiftId}
-                        onChange={(e) =>
-                          handleUpdate(record, "shiftId", e.target.value)
-                        }
-                        aria-label="Selecionar Período"
-                      >
-                        {lookupData?.shifts.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-3 border-0">
-                      <select
-                        className="form-select border-0 bg-transparent p-0 select-inline"
-                        value={record.treatmentId}
-                        onChange={(e) =>
-                          handleUpdate(record, "treatmentId", e.target.value)
-                        }
-                        aria-label="Selecionar Tratamento"
-                      >
-                        {lookupData?.treatments.map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-3 border-0">
-                      <div className="position-relative">
+                      </td>
+                      <td className="py-3 border-0">
                         <select
-                          className="form-select border-0 bg-transparent p-0 ps-3 fw-bold select-inline"
-                          value={record.statusId}
+                          className="form-select border-0 bg-transparent p-0 select-inline"
+                          value={record.complaintId}
                           onChange={(e) =>
-                            handleUpdate(record, "statusId", e.target.value)
+                            handleUpdate(record, "complaintId", e.target.value)
                           }
-                          style={{ color: record.statusColor }}
-                          aria-label="Selecionar Status"
+                          aria-label="Selecionar Queixa"
                         >
-                          {lookupData?.status.map((s) => (
+                          {lookupData?.complaints.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="py-3 border-0">
+                        <select
+                          className="form-select border-0 bg-transparent p-0 select-inline"
+                          value={record.shiftId}
+                          onChange={(e) =>
+                            handleUpdate(record, "shiftId", e.target.value)
+                          }
+                          aria-label="Selecionar Período"
+                        >
+                          {lookupData?.shifts.map((s) => (
                             <option key={s.id} value={s.id}>
                               {s.name}
                             </option>
                           ))}
                         </select>
-                        <span
-                          className="position-absolute rounded-circle"
-                          style={{
-                            width: "8px",
-                            height: "8px",
-                            backgroundColor: record.statusColor,
-                            left: 0,
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                          }}
-                        ></span>
-                      </div>
-                    </td>
-                    <td
-                      className="py-3 border-0 text-muted small"
-                      style={{
-                        maxWidth: "200px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {record.observation}
-                    </td>
-                    <td className="pe-4 py-3 border-0 text-end">
-                      <Dropdown align="end">
-                        <Dropdown.Toggle
-                          variant="link"
-                          className="text-muted p-0 border-0"
-                          id={`dropdown-${record.id}`}
+                      </td>
+                      <td className="py-3 border-0">
+                        <select
+                          className="form-select border-0 bg-transparent p-0 select-inline"
+                          value={record.treatmentId}
+                          onChange={(e) =>
+                            handleUpdate(record, "treatmentId", e.target.value)
+                          }
+                          aria-label="Selecionar Tratamento"
                         >
-                          <MoreVertical size={18} />
-                        </Dropdown.Toggle>
+                          {lookupData?.treatments.map((t) => (
+                            <option key={t.id} value={t.id}>
+                              {t.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="py-3 border-0">
+                        <div className="position-relative">
+                          <select
+                            className="form-select border-0 bg-transparent p-0 ps-3 fw-bold select-inline"
+                            value={record.statusId}
+                            onChange={(e) =>
+                              handleUpdate(record, "statusId", e.target.value)
+                            }
+                            style={{ color: record.statusColor }}
+                            aria-label="Selecionar Status"
+                          >
+                            {lookupData?.status.map((s) => (
+                              <option key={s.id} value={s.id}>
+                                {s.name}
+                              </option>
+                            ))}
+                          </select>
+                          <span
+                            className="position-absolute rounded-circle"
+                            style={{
+                              width: "8px",
+                              height: "8px",
+                              backgroundColor: record.statusColor,
+                              left: 0,
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                            }}
+                          ></span>
+                        </div>
+                      </td>
+                      <td
+                        className="py-3 border-0 text-muted small"
+                        style={{
+                          maxWidth: "200px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {record.observation}
+                      </td>
+                      <td className="pe-4 py-3 border-0 text-end">
+                        <Dropdown align="end">
+                          <Dropdown.Toggle
+                            variant="link"
+                            className="text-muted p-0 border-0"
+                            id={`dropdown-${record.id}`}
+                          >
+                            <MoreVertical size={18} />
+                          </Dropdown.Toggle>
 
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            onClick={() => handleEditObservation(record)}
-                            className="d-flex align-items-center"
-                          >
-                            <Pencil size={14} className="me-2" />
-                            Editar observação
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            className="text-danger d-flex align-items-center"
-                            onClick={() => handleDelete(record.id)}
-                          >
-                            <Trash2 size={14} className="me-2" />
-                            Deletar
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          <Dropdown.Menu>
+                            <Dropdown.Item
+                              onClick={() => handleEditObservation(record)}
+                              className="d-flex align-items-center"
+                            >
+                              <Pencil size={14} className="me-2" />
+                              Editar observação
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              className="text-danger d-flex align-items-center"
+                              onClick={() => handleDelete(record.id)}
+                            >
+                              <Trash2 size={14} className="me-2" />
+                              Deletar
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

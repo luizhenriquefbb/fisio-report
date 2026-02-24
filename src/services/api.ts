@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8787/api";
 
 const request = async (path: string, options: RequestInit = {}) => {
@@ -93,6 +95,57 @@ export const api = {
   getReports: (dateFilter?: string) =>
     request(dateFilter ? `/reports?date=${dateFilter}` : "/reports"),
   getReportStatistics: () => request("/reports/stats"),
-  generateReportPdf: () =>
-    Promise.resolve("Relatório PDF (Mock) - Implementar download real"),
-};
+  generateReportPdf: async (data: {
+    date: string;
+    therapists: string[];
+    finalNotes?: string;
+  }) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/generate-report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to generate PDF");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Relatorio_Fisio_${data.date}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+} as const;
+
+export function useApi() {
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<any>(null);
+
+  const call = async (apiFunc: (...args: any[]) => Promise<any>, ...params: any[]) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiFunc(...params);
+      setData(result);
+      return result;
+    } catch (err) {
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { data, isLoading, error, call };
+}
