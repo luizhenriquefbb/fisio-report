@@ -1,6 +1,5 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { LOGO_BASE64 } from "../assets/logo";
 
 export const generateReportPdf = async ({
   date,
@@ -75,9 +74,18 @@ export const generateReportPdf = async ({
       return null;
     };
 
-    // 2. Header
-    // Logo
-    const imageX = LOGO_BASE64 ? 20 : 0;
+    // 2. Header - Layout variables
+    const PAGE_WIDTH = 210;
+    // const PAGE_HEIGHT = 297;
+    const MARGIN_LEFT = 20;
+    const MARGIN_RIGHT = 190;
+    const centerOfPageX = PAGE_WIDTH / 2;
+    const LINE_HEIGHT = 5;
+    const TEXT_SPACING = 10;
+
+    // Logo positioning
+    const LOGO_BASE64 = ""; // Replace with base64 string or keep empty for no logo
+    const imageX = LOGO_BASE64 ? MARGIN_LEFT : 0;
     const imageY = LOGO_BASE64 ? 10 : 0;
     const imageWidth = LOGO_BASE64 ? 25 : 0;
     const imageHeight = LOGO_BASE64 ? 25 : 0;
@@ -97,38 +105,45 @@ export const generateReportPdf = async ({
       }
     }
 
-    const centerOfPageX = 105; // Center of the page (210mm width / 2)
+    // Header text positioning
+    let currentY = imageHeight > 0 ? imageY + imageHeight + 5 : 15;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("BOTAFOGO FUTEBOL CLUBE – SAF", centerOfPageX, 18, {
+    doc.text("{Nome da Equipe}", centerOfPageX, currentY, {
       align: "center",
     });
+    currentY += TEXT_SPACING;
+
     doc.setFontSize(12);
     doc.text(
       "RELATÓRIO DIÁRIO DE ATENDIMENTOS – FISIOTERAPIA",
       centerOfPageX,
-      25,
+      currentY,
       {
         align: "center",
       },
     );
+    currentY += TEXT_SPACING;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text("Departamento de Fisioterapia", centerOfPageX, 31, {
+    doc.text("Departamento de Fisioterapia", centerOfPageX, currentY, {
       align: "center",
     });
+    currentY += TEXT_SPACING;
 
     const therapistsText = `Fisioterapeutas Responsáveis: ${therapists.join(" – ")}`;
     const splitTherapists = doc.splitTextToSize(therapistsText, 75);
-    doc.text(splitTherapists, centerOfPageX, 37, {
+    doc.text(splitTherapists, centerOfPageX, currentY, {
       align: "center",
     });
+    currentY += splitTherapists.length * LINE_HEIGHT + 5;
 
-    const headerBottomY = 37 + splitTherapists.length * 5;
+    // Horizontal line after header
     doc.setLineWidth(0.2);
-    doc.line(20, headerBottomY, 190, headerBottomY);
+    doc.line(MARGIN_LEFT, currentY, MARGIN_RIGHT, currentY);
+    currentY += TEXT_SPACING + 2;
 
     // 3. Section Title
     doc.setFont("helvetica", "normal");
@@ -136,28 +151,30 @@ export const generateReportPdf = async ({
     doc.text(
       "Registros clínicos e terapêuticos",
       centerOfPageX,
-      headerBottomY + 10,
+      currentY,
       {
         align: "center",
       },
     );
+    currentY += TEXT_SPACING;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text(formattedDate, 105, headerBottomY + 20, {
+    doc.text(formattedDate, centerOfPageX, currentY, {
       align: "center",
     });
     const dateWidth = doc.getTextWidth(formattedDate);
     doc.line(
-      105 - dateWidth / 2,
-      headerBottomY + 21,
-      105 + dateWidth / 2,
-      headerBottomY + 21,
+      centerOfPageX - dateWidth / 2,
+      currentY + 1,
+      centerOfPageX + dateWidth / 2,
+      currentY + 1,
     );
+    currentY += TEXT_SPACING;
 
     // 4. Records Table
     autoTable(doc, {
-      startY: headerBottomY + 30,
+      startY: currentY,
       head: [
         ["ATLETA", "QUEIXA", "PERIODO", "TRATAMENTO", "STATUS", "OBSERVAÇÕES"],
       ],
@@ -215,24 +232,27 @@ export const generateReportPdf = async ({
 
     // 5. Final Notes (Relatório da Massagem)
     if (finalNotes) {
-      const finalY = (doc as any).lastAutoTable.finalY + 15;
+      let notesY = (doc as any).lastAutoTable.finalY + 15;
+      const NOTES_SPACING = 10;
+      const PAGE_THRESHOLD = 260;
 
       // Check for page overflow
-      if (finalY > 260) {
+      if (notesY > PAGE_THRESHOLD) {
         doc.addPage();
         doc.setPage(doc.getNumberOfPages());
+        notesY = 20;
       }
-
-      const currentY = finalY > 260 ? 20 : finalY;
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
-      doc.text("OBSERVAÇÕES GERAIS", 20, currentY);
+      doc.text("OBSERVAÇÕES GERAIS", MARGIN_LEFT, notesY);
+      notesY += NOTES_SPACING;
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      const splitNotes = doc.splitTextToSize(finalNotes, 170);
-      doc.text(splitNotes, 20, currentY + 10);
+      const NOTES_WIDTH = 170;
+      const splitNotes = doc.splitTextToSize(finalNotes, NOTES_WIDTH);
+      doc.text(splitNotes, MARGIN_LEFT, notesY);
     }
 
     // 6. Output

@@ -55,10 +55,7 @@ const Reports = () => {
         date,
         // hardcoded data for demonstration
         therapists: [
-          "Márcio Quirino",
           "Carlos Eduardo",
-          "Otávio Nascimento",
-          "Kaio Oliveira",
         ],
         finalNotes: "RELATÓRIO DA MASSAGEM\n\nMassoterapeuta: Paulo",
       });
